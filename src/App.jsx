@@ -668,29 +668,6 @@ function HomePage({ goTo }) {
                   </button>
                 </motion.div>
 
-                {/* ── tech stack strip ── */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="flex flex-wrap items-center gap-3"
-                >
-                  {[
-                    { label: "Llama 3.3-70B", color: "#f59e0b" },
-                    { label: "Groq API", color: "#10b981" },
-                    { label: "ChromaDB RAG", color: "#8b5cf6" },
-                    { label: "BLIP Vision", color: "#10b981" },
-                    { label: "React + Tailwind v4", color: "#06b6d4" },
-                  ].map(({ label, color }) => (
-                    <span key={label}
-                      className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full"
-                      style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.75)" }}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: color }} />
-                      {label}
-                    </span>
-                  ))}
-                </motion.div>
               </div>
 
               {/* ── RIGHT: demo card ── */}
@@ -757,26 +734,6 @@ function HomePage({ goTo }) {
               </motion.div>
             </div>
 
-            {/* ── bottom stats bar ── */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45 }}
-              className="mt-8 pt-6 flex flex-wrap gap-x-8 gap-y-3"
-              style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}
-            >
-              {[
-                { val: "12+ Pasal", icon: BookOpen },
-                { val: "3-Step Vision AI", icon: Camera },
-                { val: "RAG Pipeline", icon: Search },
-                { val: "100% Edukatif", icon: Shield },
-              ].map(({ val, icon: Icon }, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <Icon size={13} className="text-emerald-300/70 shrink-0" />
-                  <span className="text-[13px] font-semibold text-white/60">{val}</span>
-                </div>
-              ))}
-            </motion.div>
           </div>
         </motion.section>
 
