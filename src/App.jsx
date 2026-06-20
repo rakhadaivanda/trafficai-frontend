@@ -1053,12 +1053,12 @@ function KonsultasiPage({ initMsg, setHistory }) {
         )}
       </div>
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-4 pt-5 pb-2 page-bg">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-5 pb-2 page-bg" style={{ maxWidth: "100%" }}>
         {messages.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col justify-start sm:justify-center min-h-full text-center py-8 px-3 w-full"
+            className="flex flex-col justify-start sm:justify-center min-h-full text-center py-8 w-full"
           >
             <motion.div
               animate={{ y: [0, -8, 0] }}
@@ -1071,16 +1071,16 @@ function KonsultasiPage({ initMsg, setHistory }) {
             <h3 className="font-extrabold text-info-heading text-xl sm:text-2xl mb-2 tracking-tight mx-auto">
               Konsultasi Hukum Berlalu Lintas
             </h3>
-            <p className="font-medium text-gray-500 text-sm sm:text-[15px] max-w-sm sm:max-w-xl w-full mb-6 leading-relaxed mx-auto">
+            <p className="font-medium text-gray-500 text-sm sm:text-[15px] max-w-xs sm:max-w-xl w-full mb-6 leading-relaxed mx-auto">
               Ceritakan kronologi untuk deteksi pelanggaran, atau tanyakan referensi aturan lalu lintas secara langsung.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 w-full max-w-xl mx-auto">
+            <div className="flex flex-col gap-2.5 w-full max-w-xl mx-auto text-left">
               {EXAMPLES.map((ex, i) => (
                 <button key={i} onClick={() => send(ex)}
-                  className="text-left font-normal text-sm bg-surface-container-lowest card-surface border border-outline-variant rounded-xl px-3 py-3 hover:border-primary-fixed hover:bg-surface-container-low transition-all text-info-heading flex items-start gap-2.5 group shadow-sm w-full overflow-hidden">
+                  className="text-left font-normal text-sm bg-surface-container-lowest card-surface border border-outline-variant rounded-xl px-3 py-3 hover:border-primary-fixed hover:bg-surface-container-low transition-all text-info-heading flex items-start gap-2.5 group shadow-sm w-full" style={{ boxSizing: "border-box", minWidth: 0 }}>
                   <Search size={14} className="text-secondary group-hover:text-emerald-500 shrink-0 mt-0.5" />
-                  <span className="leading-snug flex-1">{ex}</span>
+                  <span className="leading-snug min-w-0 break-words" style={{ flex: "1 1 0", wordBreak: "break-word", overflowWrap: "anywhere" }}>{ex}</span>
                 </button>
               ))}
             </div>
