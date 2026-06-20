@@ -1053,34 +1053,51 @@ function KonsultasiPage({ initMsg, setHistory }) {
         )}
       </div>
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-5 pb-2 page-bg" style={{ maxWidth: "100%" }}>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden page-bg">
         {messages.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col justify-start sm:justify-center min-h-full text-center py-8 w-full"
+            style={{
+              minHeight: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "flex-start",
+              padding: "32px 16px",
+              boxSizing: "border-box",
+              width: "100%",
+            }}
           >
             <motion.div
               animate={{ y: [0, -8, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="bg-gradient-to-br from-emerald-800 to-emerald-400 rounded-3xl p-5 mb-5 shadow-xl border border-emerald-400/30 mx-auto w-fit"
+              className="bg-gradient-to-br from-emerald-800 to-emerald-400 rounded-3xl p-5 mb-5 shadow-xl border border-emerald-400/30"
+              style={{ flexShrink: 0 }}
             >
               <Car size={36} className="text-white" />
             </motion.div>
 
-            <h3 className="font-extrabold text-info-heading text-xl sm:text-2xl mb-2 tracking-tight mx-auto">
+            <h3 className="font-extrabold text-info-heading text-xl sm:text-2xl mb-2 tracking-tight" style={{ textAlign: "center" }}>
               Konsultasi Hukum Berlalu Lintas
             </h3>
-            <p className="font-medium text-gray-500 text-sm sm:text-[15px] max-w-xs sm:max-w-xl w-full mb-6 leading-relaxed mx-auto">
+            <p className="font-medium text-gray-500 text-sm mb-6 leading-relaxed" style={{ textAlign: "center", width: "100%", maxWidth: "480px", boxSizing: "border-box" }}>
               Ceritakan kronologi untuk deteksi pelanggaran, atau tanyakan referensi aturan lalu lintas secara langsung.
             </p>
 
-            <div className="flex flex-col gap-2.5 w-full max-w-xl mx-auto text-left">
+            <div style={{ width: "100%", maxWidth: "576px", display: "flex", flexDirection: "column", gap: "10px", boxSizing: "border-box" }}>
               {EXAMPLES.map((ex, i) => (
                 <button key={i} onClick={() => send(ex)}
-                  className="text-left font-normal text-sm bg-surface-container-lowest card-surface border border-outline-variant rounded-xl px-3 py-3 hover:border-primary-fixed hover:bg-surface-container-low transition-all text-info-heading flex items-start gap-2.5 group shadow-sm w-full" style={{ boxSizing: "border-box", minWidth: 0 }}>
-                  <Search size={14} className="text-secondary group-hover:text-emerald-500 shrink-0 mt-0.5" />
-                  <span className="leading-snug min-w-0 break-words" style={{ flex: "1 1 0", wordBreak: "break-word", overflowWrap: "anywhere" }}>{ex}</span>
+                  className="card-surface border border-outline-variant hover:border-primary-fixed hover:bg-surface-container-low transition-all text-info-heading group shadow-sm font-normal"
+                  style={{
+                    display: "flex", alignItems: "flex-start", gap: "10px",
+                    width: "100%", boxSizing: "border-box", textAlign: "left",
+                    padding: "12px", borderRadius: "12px", fontSize: "14px",
+                    background: "var(--color-surface-container-lowest)", cursor: "pointer",
+                    minWidth: 0,
+                  }}>
+                  <Search size={14} className="text-secondary group-hover:text-emerald-500" style={{ flexShrink: 0, marginTop: "2px" }} />
+                  <span style={{ flex: "1 1 0%", minWidth: 0, lineHeight: "1.45", wordBreak: "break-word", overflowWrap: "anywhere" }}>{ex}</span>
                 </button>
               ))}
             </div>
