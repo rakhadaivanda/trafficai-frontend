@@ -220,17 +220,17 @@ function useDarkMode() {
 // DARK MODE + GLOBAL STYLES
 // ════════════════════════════════════════════════
 const DARK_CSS = `
-  .tm-dark { background-color:#0f172a !important; color:#e2e8f0 !important; }
-  .tm-dark nav, .tm-dark .chat-input-bar, .tm-dark .chat-header { background-color:#1e293b !important; border-color:#334155 !important; }
-  .tm-dark .bg-white, .tm-dark .card-surface { background-color:#1e293b !important; }
-  .tm-dark .bg-gray-50, .tm-dark .page-bg { background-color:#0f172a !important; }
-  .tm-dark .bg-gray-100, .tm-dark .input-bg { background-color:#334155 !important; }
+  .tm-dark { background-color:#060d1a !important; color:#e2e8f0 !important; }
+  .tm-dark nav, .tm-dark .chat-input-bar, .tm-dark .chat-header { background-color:rgba(11,17,32,0.88) !important; border-color:#1e293b !important; }
+  .tm-dark .bg-white, .tm-dark .card-surface { background-color:#111827 !important; }
+  .tm-dark .bg-gray-50, .tm-dark .page-bg { background-color:#060d1a !important; }
+  .tm-dark .bg-gray-100, .tm-dark .input-bg { background-color:#1e293b !important; }
   .tm-dark .text-gray-800, .tm-dark .text-gray-700 { color:#e2e8f0 !important; }
   .tm-dark .text-gray-500, .tm-dark .text-gray-600 { color:#94a3b8 !important; }
   .tm-dark .text-gray-400 { color:#64748b !important; }
-  .tm-dark .border-gray-100, .tm-dark .border-gray-200 { border-color:#334155 !important; }
-  .tm-dark .bg-gray-50.rounded-xl, .tm-dark .tech-item { background-color:#0f172a !important; }
-  .tm-dark .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,.4) !important; }
+  .tm-dark .border-gray-100, .tm-dark .border-gray-200 { border-color:#1e293b !important; }
+  .tm-dark .bg-gray-50.rounded-xl, .tm-dark .tech-item { background-color:#111827 !important; }
+  .tm-dark .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,.5) !important; }
 `;
 
 // ════════════════════════════════════════════════
@@ -247,35 +247,54 @@ function PasalModal({ pasal, onClose }) {
 
   if (!pasal) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.55)" }}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
       onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 card-surface"
-        onClick={e => e.stopPropagation()}>
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              {pasal.icon && <pasal.icon size={20} className="text-emerald-600 shrink-0" />}
-              <span className="inline-block bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full card-surface flex flex-col"
+        style={{ maxWidth: "560px", maxHeight: "90vh" }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between p-6 pb-4 shrink-0">
+          <div className="flex items-start gap-3 min-w-0">
+            {pasal.icon && (
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-400 flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                <pasal.icon size={18} className="text-white" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <span className="inline-block bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full mb-2">
                 {pasal.pasal}
               </span>
+              <h2 className="font-bold text-gray-800 text-lg leading-snug">{pasal.jenis}</h2>
             </div>
-            <h2 className="font-bold text-gray-800 text-base">{pasal.jenis}</h2>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors shrink-0 ml-3"
+          >
             <X size={18} />
           </button>
         </div>
-        <div className="bg-gray-50 rounded-xl p-4 mb-4">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Bunyi Pasal</p>
-          <p className="text-sm text-gray-700 leading-relaxed">{pasal.detail}</p>
-        </div>
-        <div className="flex items-center justify-between bg-amber-50 rounded-xl p-3">
-          <div className="flex items-center gap-2">
-            <AlertTriangle size={14} className="text-amber-500" />
-            <span className="text-xs font-semibold text-amber-800">Ancaman Sanksi</span>
+
+        {/* Scrollable body */}
+        <div className="overflow-y-auto px-6 pb-2 flex-1">
+          <div className="bg-gray-50 rounded-xl p-4 mb-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Bunyi Pasal</p>
+            <p className="text-sm text-gray-700 leading-relaxed">{pasal.detail}</p>
           </div>
-          <span className="text-xs text-amber-800 font-bold">{pasal.sanksi}</span>
+        </div>
+
+        {/* Footer — sanksi */}
+        <div className="px-6 pb-6 pt-2 shrink-0">
+          <div className="flex items-start gap-3 bg-amber-50 rounded-xl p-4 border border-amber-100">
+            <AlertTriangle size={16} className="text-amber-500 shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-amber-700 mb-1">Ancaman Sanksi</p>
+              <p className="text-sm text-amber-900 font-bold leading-relaxed">{pasal.sanksi}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -581,10 +600,28 @@ function HomePage({ goTo }) {
         >
           {/* ── decorative layer ── */}
           {/* dot-grid overlay */}
-          <div className="pointer-events-none absolute inset-0" style={{
-            backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px)",
-            backgroundSize: "28px 28px"
-          }} />
+          <div className="pointer-events-none absolute inset-0 dot-grid opacity-60" />
+          {/* animated particles */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            {[
+              { left: "15%", top: "75%", size: 4, color: "rgba(52,211,153,0.6)", delay: "0s", dur: "10s" },
+              { left: "65%", top: "85%", size: 3, color: "rgba(110,231,183,0.5)", delay: "3s", dur: "13s" },
+              { left: "35%", top: "90%", size: 2, color: "rgba(167,243,208,0.4)", delay: "6s", dur: "11s" },
+              { left: "80%", top: "70%", size: 3, color: "rgba(52,211,153,0.4)", delay: "1.5s", dur: "15s" },
+              { left: "50%", top: "80%", size: 2, color: "rgba(255,255,255,0.3)", delay: "4s", dur: "12s" },
+            ].map((p, i) => (
+              <div key={i} style={{
+                position: "absolute",
+                left: p.left,
+                top: p.top,
+                width: p.size,
+                height: p.size,
+                borderRadius: "50%",
+                background: p.color,
+                animation: `particle-rise-1 ${p.dur} ease-in-out ${p.delay} infinite`,
+              }} />
+            ))}
+          </div>
           {/* glowing orbs */}
           <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full"
             style={{ background: "radial-gradient(circle, rgba(52,211,153,0.18) 0%, transparent 70%)" }} />
@@ -999,7 +1036,7 @@ function KonsultasiPage({ initMsg, setHistory }) {
     <div className="flex flex-col h-full">
       {modalPasal && <PasalModal pasal={modalPasal} onClose={() => setModalPasal(null)} />}
       {/* Header */}
-      <div className="chat-header bg-surface/90 backdrop-blur-md border-b border-outline-variant px-5 py-3.5 flex items-center justify-between shrink-0 z-10 sticky top-0 shadow-sm">
+      <div className="chat-header bg-surface/90 backdrop-blur-md border-b border-outline-variant px-5 py-3.5 flex items-center justify-between shrink-0 z-10 sticky top-0 shadow-sm scan-line-container">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-800 to-emerald-400 flex items-center justify-center shadow-md">
             <Car size={15} className="text-white" />
@@ -1424,10 +1461,16 @@ export default function App() {
       <style>{`
         @keyframes typingBounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
         @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes particle-rise-1 { 0%{transform:translateY(0) translateX(0);opacity:0} 10%{opacity:0.8} 90%{opacity:0.2} 100%{transform:translateY(-140px) translateX(35px);opacity:0} }
+        @keyframes particle-rise-2 { 0%{transform:translateY(0) translateX(0);opacity:0} 15%{opacity:0.6} 85%{opacity:0.25} 100%{transform:translateY(-110px) translateX(-30px);opacity:0} }
         ${DARK_CSS}
       `}</style>
 
       <div className={`h-screen flex flex-col bg-background text-on-surface page-bg ${dark ? "tm-dark" : ""}`}>
+        {/* Ambient animated orbs */}
+        <div className="orb-1" aria-hidden="true" />
+        <div className="orb-2" aria-hidden="true" />
+        <div className="orb-3" aria-hidden="true" />
         {/* Navbar */}
         <nav className="bg-surface border-b border-outline-variant shrink-0 z-50 shadow-sm transition-colors">
           <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
