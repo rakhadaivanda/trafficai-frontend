@@ -439,7 +439,7 @@ function Bubble({ msg, onPasalClick, feedback, onFeedback }) {
       <motion.div whileHover={{ rotate: 10 }} className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-800 to-emerald-400 flex items-center justify-center shrink-0 mt-0.5 shadow-md border border-emerald-400/30">
         <Car size={18} className="text-white" />
       </motion.div>
-      <div className="max-w-sm sm:max-w-lg lg:max-w-2xl w-full">
+      <div className="min-w-0 flex-1 max-w-[85%] sm:max-w-lg lg:max-w-2xl">
         <div className="bg-surface-container-lowest glass-card border border-outline-variant rounded-2xl rounded-tl-sm shadow-md overflow-hidden">
           {/* Error */}
           {msg.isError && (
@@ -1053,19 +1053,34 @@ function KonsultasiPage({ initMsg, setHistory }) {
         )}
       </div>
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 pt-5 pb-2 page-bg">
+      <div className="flex-1 overflow-y-auto px-3 sm:px-4 pt-5 pb-2 page-bg">
         {messages.length === 0 ? (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center h-full text-center pb-8 w-full">
-            <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="bg-gradient-to-br from-emerald-800 to-emerald-400 rounded-3xl p-6 mb-6 shadow-xl border border-emerald-400/30"><Car size={48} className="text-white" /></motion.div>
-            <h3 className="font-extrabold text-info-heading text-2xl mb-3 tracking-tight">Konsultasi Hukum Berlalu Lintas</h3>
-            <p className="font-medium text-gray-500 text-[15px] max-w-2xl w-full px-4 mb-8 leading-relaxed">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center justify-start sm:justify-center min-h-full text-center py-8 px-4 w-full"
+          >
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="bg-gradient-to-br from-emerald-800 to-emerald-400 rounded-3xl p-5 mb-5 shadow-xl border border-emerald-400/30"
+            >
+              <Car size={36} className="text-white" />
+            </motion.div>
+
+            <h3 className="font-extrabold text-info-heading text-xl sm:text-2xl mb-2 tracking-tight">
+              Konsultasi Hukum Berlalu Lintas
+            </h3>
+            <p className="font-medium text-gray-500 text-sm sm:text-[15px] max-w-sm sm:max-w-xl w-full mb-6 leading-relaxed">
               Ceritakan kronologi untuk deteksi pelanggaran, atau tanyakan referensi aturan lalu lintas secara langsung.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-3xl px-4">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-xl">
               {EXAMPLES.map((ex, i) => (
                 <button key={i} onClick={() => send(ex)}
-                  className="text-left font-normal text-sm bg-surface-container-lowest card-surface border border-outline-variant rounded-xl px-4 py-3 hover:border-primary-fixed hover:bg-surface-container-low transition-all text-info-heading flex items-center gap-2.5 group shadow-sm">
-                  <Search size={14} className="text-secondary group-hover:text-emerald-500 shrink-0" />{ex}
+                  className="text-left font-normal text-sm bg-surface-container-lowest card-surface border border-outline-variant rounded-xl px-4 py-3 hover:border-primary-fixed hover:bg-surface-container-low transition-all text-info-heading flex items-start gap-2.5 group shadow-sm">
+                  <Search size={14} className="text-secondary group-hover:text-emerald-500 shrink-0 mt-0.5" />
+                  <span className="leading-snug">{ex}</span>
                 </button>
               ))}
             </div>
@@ -1081,7 +1096,7 @@ function KonsultasiPage({ initMsg, setHistory }) {
         )}
       </div>
       {/* Input */}
-      <div className="chat-input-bar bg-surface/80 backdrop-blur-md border-t border-outline-variant p-4 md:p-6 shrink-0 relative z-10">
+      <div className="chat-input-bar bg-surface/80 backdrop-blur-md border-t border-outline-variant p-3 sm:p-4 md:p-6 shrink-0 relative z-10">
         <AnimatePresence>
           {imagePreview && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute bottom-full left-0 mb-2 ml-4 z-10">
