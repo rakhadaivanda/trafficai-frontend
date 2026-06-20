@@ -420,13 +420,13 @@ function Bubble({ msg, onPasalClick, feedback, onFeedback }) {
   const isUser = msg.role === "user";
   if (isUser) {
     return (
-      <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="flex justify-end mb-5">
-        <div className="max-w-[85%] md:max-w-[75%]">
-          <div className="bg-gradient-to-br from-emerald-800 to-emerald-400 text-white rounded-2xl rounded-tr-sm px-4 py-3 text-[15px] leading-relaxed shadow-md">
+      <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="flex justify-end mb-5 w-full">
+        <div className="max-w-[80%] min-w-0">
+          <div className="bg-gradient-to-br from-emerald-800 to-emerald-400 text-white rounded-2xl rounded-tr-sm px-4 py-3 text-[14px] leading-relaxed shadow-md break-words">
             {msg.imageBase64 && (
               <img src={msg.imageBase64} alt="Upload" className="max-w-full h-auto rounded-lg mb-2 border border-emerald-500" style={{ maxHeight: 200 }} />
             )}
-            <div className="font-normal whitespace-pre-wrap break-words">{msg.content}</div>
+            <div className="font-normal whitespace-pre-wrap break-words overflow-wrap-anywhere">{msg.content}</div>
           </div>
           <p className="font-normal text-[11px] text-on-surface-variant mt-1.5 px-1 text-right">{msg.time}</p>
         </div>
@@ -435,11 +435,11 @@ function Bubble({ msg, onPasalClick, feedback, onFeedback }) {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="flex justify-start mb-5 gap-2.5">
-      <motion.div whileHover={{ rotate: 10 }} className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-800 to-emerald-400 flex items-center justify-center shrink-0 mt-0.5 shadow-md border border-emerald-400/30">
-        <Car size={18} className="text-white" />
+    <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="flex justify-start mb-5 gap-2 w-full">
+      <motion.div whileHover={{ rotate: 10 }} className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-800 to-emerald-400 flex items-center justify-center shrink-0 mt-0.5 shadow-md border border-emerald-400/30">
+        <Car size={16} className="text-white" />
       </motion.div>
-      <div className="min-w-0 flex-1 max-w-[85%] sm:max-w-lg lg:max-w-2xl">
+      <div className="min-w-0 flex-1 overflow-hidden" style={{ maxWidth: "calc(100% - 44px)" }}>
         <div className="bg-surface-container-lowest glass-card border border-outline-variant rounded-2xl rounded-tl-sm shadow-md overflow-hidden">
           {/* Error */}
           {msg.isError && (
@@ -1053,12 +1053,12 @@ function KonsultasiPage({ initMsg, setHistory }) {
         )}
       </div>
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-3 sm:px-4 pt-5 pb-2 page-bg">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-4 pt-5 pb-2 page-bg">
         {messages.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-start sm:justify-center min-h-full text-center py-8 px-4 w-full"
+            className="flex flex-col items-center justify-start sm:justify-center min-h-full text-center py-8 px-3 w-full overflow-hidden"
           >
             <motion.div
               animate={{ y: [0, -8, 0] }}
@@ -1078,9 +1078,9 @@ function KonsultasiPage({ initMsg, setHistory }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-xl">
               {EXAMPLES.map((ex, i) => (
                 <button key={i} onClick={() => send(ex)}
-                  className="text-left font-normal text-sm bg-surface-container-lowest card-surface border border-outline-variant rounded-xl px-4 py-3 hover:border-primary-fixed hover:bg-surface-container-low transition-all text-info-heading flex items-start gap-2.5 group shadow-sm">
+                  className="text-left font-normal text-sm bg-surface-container-lowest card-surface border border-outline-variant rounded-xl px-3 py-3 hover:border-primary-fixed hover:bg-surface-container-low transition-all text-info-heading flex items-start gap-2.5 group shadow-sm w-full overflow-hidden">
                   <Search size={14} className="text-secondary group-hover:text-emerald-500 shrink-0 mt-0.5" />
-                  <span className="leading-snug">{ex}</span>
+                  <span className="leading-snug break-words min-w-0">{ex}</span>
                 </button>
               ))}
             </div>

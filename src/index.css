@@ -649,6 +649,21 @@ textarea:focus-visible {
 }
 
 /* ═══════════════════════════════════════
+   MOBILE OVERFLOW FIX
+═══════════════════════════════════════ */
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Prevent horizontal scroll on mobile */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* ═══════════════════════════════════════
    BASE STYLES
 ═══════════════════════════════════════ */
 * {
