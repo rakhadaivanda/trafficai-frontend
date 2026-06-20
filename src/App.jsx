@@ -1103,7 +1103,7 @@ function KonsultasiPage({ initMsg, setHistory }) {
             </div>
           </motion.div>
         ) : (
-          <div className="max-w-4xl mx-auto w-full">
+          <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 pt-5 pb-4">
             {messages.map((m, i) => (
               <Bubble key={i} msg={m} onPasalClick={setModalPasal} feedback={feedback} onFeedback={handleFeedback} />
             ))}
