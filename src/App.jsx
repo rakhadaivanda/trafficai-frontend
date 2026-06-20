@@ -630,7 +630,7 @@ function HomePage({ goTo }) {
           <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-40 rounded-full"
             style={{ background: "radial-gradient(ellipse, rgba(16,185,129,0.08) 0%, transparent 70%)" }} />
 
-          <div className="relative z-10 px-8 md:px-12 py-12 md:py-14">
+          <div className="relative z-10 px-5 md:px-12 py-10 md:py-14">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-10 items-center">
 
               {/* ── LEFT: copy ── */}
@@ -1058,7 +1058,7 @@ function KonsultasiPage({ initMsg, setHistory }) {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col justify-start sm:justify-center min-h-full text-center py-8 px-3 w-full overflow-hidden"
+            className="flex flex-col justify-start sm:justify-center min-h-full text-center py-8 px-3 w-full"
           >
             <motion.div
               animate={{ y: [0, -8, 0] }}
@@ -1075,7 +1075,7 @@ function KonsultasiPage({ initMsg, setHistory }) {
               Ceritakan kronologi untuk deteksi pelanggaran, atau tanyakan referensi aturan lalu lintas secara langsung.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 w-full max-w-xl mx-auto">
               {EXAMPLES.map((ex, i) => (
                 <button key={i} onClick={() => send(ex)}
                   className="text-left font-normal text-sm bg-surface-container-lowest card-surface border border-outline-variant rounded-xl px-3 py-3 hover:border-primary-fixed hover:bg-surface-container-low transition-all text-info-heading flex items-start gap-2.5 group shadow-sm w-full overflow-hidden">
