@@ -108,17 +108,17 @@ function exportPDF(violations, userInput) {
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:Arial,sans-serif;color:#1e293b;background:#fff;padding:32px;max-width:800px;margin:0 auto}
-    .header{border-bottom:3px solid #2563eb;padding-bottom:16px;margin-bottom:24px}
-    .logo{font-size:22px;font-weight:800;color:#2563eb}
-    .logo span{color:#1e293b}
+    .header{border-bottom:3px solid #059669;padding-bottom:16px;margin-bottom:24px}
+    .logo{font-size:22px;font-weight:800;color:#059669}
+    .logo span{color:#10b981}
     .meta{font-size:12px;color:#64748b;margin-top:4px}
-    .desc-box{background:#f1f5f9;border-left:4px solid #2563eb;padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:24px}
+    .desc-box{background:#f1f5f9;border-left:4px solid #059669;padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:24px}
     .desc-label{font-size:11px;color:#64748b;font-weight:700;margin-bottom:4px}
     .desc-text{font-size:14px;color:#1e293b}
     .section-title{font-size:14px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
     .v-card{border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:12px;break-inside:avoid}
     .v-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-    .num{background:#2563eb;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px}
+    .num{background:#059669;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px}
     .sev{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
     .sev.high{background:#fee2e2;color:#b91c1c}
     .sev.medium{background:#fef3c7;color:#92400e}
@@ -127,7 +127,7 @@ function exportPDF(violations, userInput) {
     .row{display:flex;gap:8px;font-size:12px;margin-bottom:5px}
     .row-label{color:#94a3b8;font-weight:600;min-width:80px}
     .row-val{color:#1e293b}
-    .row-val.blue{color:#1d4ed8;font-weight:600}
+    .row-val.green{color:#059669;font-weight:600}
     .total-box{background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:16px;margin:20px 0;display:flex;justify-content:space-between;align-items:center}
     .total-label{font-size:13px;color:#92400e;font-weight:600}
     .total-val{font-size:20px;font-weight:800;color:#78350f}
@@ -152,7 +152,7 @@ function exportPDF(violations, userInput) {
         <span class="sev ${sev}">${SEV[sev]?.label || sev}</span>
         <span class="v-name">${v.jenis}</span>
       </div>
-      <div class="row"><span class="row-label">Pasal</span><span class="row-val blue">${v.pasal}</span></div>
+      <div class="row"><span class="row-label">Pasal</span><span class="row-val green">${v.pasal}</span></div>
       <div class="row"><span class="row-label">Sanksi</span><span class="row-val">${v.sanksi}</span></div>
       <div class="row"><span class="row-label">Keterangan</span><span class="row-val" style="color:#64748b">${v.penjelasan}</span></div>
     </div>`;
@@ -622,7 +622,7 @@ function HomePage({ goTo }) {
                 >
                   Asisten Edukasi<br />
                   <span style={{
-                    background: "linear-gradient(90deg, #60a5fa 0%, #a78bfa 50%, #38bdf8 100%)",
+                    background: "linear-gradient(90deg, #34d399 0%, #10b981 50%, #059669 100%)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent"
                   }}>
@@ -651,7 +651,7 @@ function HomePage({ goTo }) {
                   <button
                     onClick={() => goTo("konsultasi")}
                     className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all active:scale-95"
-                    style={{ background: "#3b82f6", color: "#fff", boxShadow: "0 0 0 1px rgba(255,255,255,0.1) inset, 0 8px 24px rgba(16,185,129,0.4)" }}
+                    style={{ background: "#10b981", color: "#fff", boxShadow: "0 0 0 1px rgba(255,255,255,0.1) inset, 0 8px 24px rgba(16,185,129,0.4)" }}
                     onMouseEnter={e => e.currentTarget.style.boxShadow = "0 0 0 1px rgba(255,255,255,0.15) inset, 0 12px 32px rgba(16,185,129,0.55)"}
                     onMouseLeave={e => e.currentTarget.style.boxShadow = "0 0 0 1px rgba(255,255,255,0.1) inset, 0 8px 24px rgba(16,185,129,0.4)"}
                   >
@@ -679,7 +679,7 @@ function HomePage({ goTo }) {
                     { label: "Llama 3.3-70B", color: "#f59e0b" },
                     { label: "Groq API", color: "#10b981" },
                     { label: "ChromaDB RAG", color: "#8b5cf6" },
-                    { label: "BLIP Vision", color: "#3b82f6" },
+                    { label: "BLIP Vision", color: "#10b981" },
                     { label: "React + Tailwind v4", color: "#06b6d4" },
                   ].map(({ label, color }) => (
                     <span key={label}
@@ -772,7 +772,7 @@ function HomePage({ goTo }) {
                 { val: "100% Edukatif", icon: Shield },
               ].map(({ val, icon: Icon }, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <Icon size={13} className="text-blue-300/70 shrink-0" />
+                  <Icon size={13} className="text-emerald-300/70 shrink-0" />
                   <span className="text-[13px] font-semibold text-white/60">{val}</span>
                 </div>
               ))}
@@ -794,16 +794,16 @@ function HomePage({ goTo }) {
               {[
                 {
                   id: "konsultasi", icon: MessageSquare,
-                  gradient: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
-                  glow: "rgba(37,99,235,0.20)",
+                  gradient: "linear-gradient(135deg, #059669 0%, #065f46 100%)",
+                  glow: "rgba(5,150,105,0.20)",
                   title: "Deteksi Pelanggaran",
                   desc: "Ceritakan kronologi berkendara dan dapatkan breakdown pasal & denda secara instan.",
                   badge: "AI Chat"
                 },
                 {
                   id: "informasi", icon: BookOpen,
-                  gradient: "linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)",
-                  glow: "rgba(79,70,229,0.20)",
+                  gradient: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                  glow: "rgba(16,185,129,0.20)",
                   title: "Database Pasal",
                   desc: "12+ pasal UU No.22 Tahun 2009 dengan penjelasan mudah dipahami & pencarian cepat.",
                   badge: "12+ Pasal"
@@ -824,7 +824,7 @@ function HomePage({ goTo }) {
                       <Icon size={20} className="text-white" />
                     </div>
                     <span className="text-[10px] font-bold px-2 py-1 rounded-full"
-                      style={{ background: "rgba(37,99,235,0.08)", color: "#2563eb", border: "1px solid rgba(37,99,235,0.15)" }}>
+                      style={{ background: "rgba(5,150,105,0.08)", color: "#059669", border: "1px solid rgba(5,150,105,0.15)" }}>
                       {badge}
                     </span>
                   </div>
@@ -841,20 +841,20 @@ function HomePage({ goTo }) {
               whileHover={{ y: -3 }}
               onClick={() => goTo("riwayat")}
               className="glass-card rounded-2xl p-5 cursor-pointer group flex items-center gap-4 relative overflow-hidden"
-              onMouseEnter={e => e.currentTarget.style.boxShadow = "0 12px 32px -8px rgba(109,40,217,0.18)"}
+              onMouseEnter={e => e.currentTarget.style.boxShadow = "0 12px 32px -8px rgba(5,150,105,0.18)"}
               onMouseLeave={e => e.currentTarget.style.boxShadow = ""}
               style={{ transition: "box-shadow 0.3s" }}
             >
               <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-lg group-hover:scale-110 transition-transform"
-                style={{ background: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)" }}>
+                style={{ background: "linear-gradient(135deg, #059669 0%, #064e3b 100%)" }}>
                 <History size={22} className="text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-purple-500 mb-0.5">Auto-saved</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 mb-0.5">Auto-saved</p>
                 <h4 className="font-bold text-base text-info-heading">Riwayat Konsultasi</h4>
                 <p className="text-sm text-on-surface-variant truncate">Ulas kembali konsultasi sebelumnya yang tersimpan di browser.</p>
               </div>
-              <ChevronRight size={18} className="text-outline group-hover:text-purple-500 shrink-0 transition-colors" />
+              <ChevronRight size={18} className="text-outline group-hover:text-emerald-600 shrink-0 transition-colors" />
             </motion.div>
           </section>
 
@@ -878,14 +878,14 @@ function HomePage({ goTo }) {
                     whileHover={{ x: 4 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => goTo("konsultasi", ex)}
-                    className="text-left border border-outline-variant hover:border-blue-300 p-3 rounded-xl text-sm text-info-heading transition-all flex items-start gap-2.5 group"
+                    className="text-left border border-outline-variant hover:border-emerald-300 p-3 rounded-xl text-sm text-info-heading transition-all flex items-start gap-2.5 group"
                     style={{ background: "var(--color-surface-container-low)" }}
-                    onMouseEnter={e => { e.currentTarget.style.background = "rgba(37,99,235,0.04)"; }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "rgba(16,185,129,0.04)"; }}
                     onMouseLeave={e => { e.currentTarget.style.background = "var(--color-surface-container-low)"; }}
                   >
                     <span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold mt-0.5 transition-all"
-                      style={{ background: "rgba(37,99,235,0.1)", color: "#2563eb" }}
-                      onMouseEnter={e => { e.currentTarget.style.background = "#2563eb"; e.currentTarget.style.color = "#fff"; }}
+                      style={{ background: "rgba(16,185,129,0.1)", color: "#10b981" }}
+                      onMouseEnter={e => { e.currentTarget.style.background = "#10b981"; e.currentTarget.style.color = "#fff"; }}
                     >
                       {i + 1}
                     </span>
@@ -1475,7 +1475,7 @@ export default function App() {
         <nav className="bg-surface border-b border-outline-variant shrink-0 z-50 shadow-sm transition-colors">
           <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <button onClick={() => goTo("home")} onDoubleClick={() => goTo("evaluasi")} className="flex items-center gap-2 group">
-              <div className="bg-gradient-to-br from-emerald-800 to-emerald-400 rounded-xl p-2 shadow-md group-hover:shadow-blue-300/40 transition-shadow">
+              <div className="bg-gradient-to-br from-emerald-800 to-emerald-400 rounded-xl p-2 shadow-md group-hover:shadow-emerald-300/40 transition-shadow">
                 <Car size={15} className="text-white" />
               </div>
               <span className="font-extrabold text-info-heading text-lg tracking-tight">Traffic<span className="text-emerald-600">AI</span></span>
