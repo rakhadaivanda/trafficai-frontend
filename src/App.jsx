@@ -255,8 +255,8 @@ function PasalModal({ pasal, onClose }) {
         <div className="flex items-start justify-between mb-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              {pasal.icon && <pasal.icon size={20} className="text-blue-600 shrink-0" />}
-              <span className="inline-block bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">
+              {pasal.icon && <pasal.icon size={20} className="text-emerald-600 shrink-0" />}
+              <span className="inline-block bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">
                 {pasal.pasal}
               </span>
             </div>
@@ -363,7 +363,7 @@ function ViolationCard({ v, index, onPasalClick }) {
         </div>
         <div>
           <div className="flex items-center gap-1.5 mb-0.5">
-            <span className="text-xs font-bold text-white bg-blue-600 px-2 py-0.5 rounded-md">#{index + 1}</span>
+            <span className="text-xs font-bold text-white bg-emerald-600 px-2 py-0.5 rounded-md">#{index + 1}</span>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-md" style={{ background: s.pillBg, color: s.pillText }}>
               {s.label}
             </span>
@@ -376,10 +376,10 @@ function ViolationCard({ v, index, onPasalClick }) {
           <span className="text-gray-400 font-medium w-20 shrink-0">Pasal</span>
           <button
             onClick={() => matchedPasal && onPasalClick(matchedPasal)}
-            className={`text-blue-700 font-semibold text-left ${matchedPasal ? "hover:underline cursor-pointer" : ""} flex items-center gap-1`}
+            className={`text-emerald-700 font-semibold text-left ${matchedPasal ? "hover:underline cursor-pointer" : ""} flex items-center gap-1`}
           >
             {v.pasal}
-            {matchedPasal && <ExternalLink size={10} className="text-blue-400" />}
+            {matchedPasal && <ExternalLink size={10} className="text-emerald-400" />}
           </button>
         </div>
         {[
@@ -403,9 +403,9 @@ function Bubble({ msg, onPasalClick, feedback, onFeedback }) {
     return (
       <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="flex justify-end mb-5">
         <div className="max-w-[85%] md:max-w-[75%]">
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-2xl rounded-tr-sm px-4 py-3 text-[15px] leading-relaxed shadow-md">
+          <div className="bg-gradient-to-br from-emerald-800 to-emerald-400 text-white rounded-2xl rounded-tr-sm px-4 py-3 text-[15px] leading-relaxed shadow-md">
             {msg.imageBase64 && (
-              <img src={msg.imageBase64} alt="Upload" className="max-w-full h-auto rounded-lg mb-2 border border-blue-500" style={{ maxHeight: 200 }} />
+              <img src={msg.imageBase64} alt="Upload" className="max-w-full h-auto rounded-lg mb-2 border border-emerald-500" style={{ maxHeight: 200 }} />
             )}
             <div className="font-normal whitespace-pre-wrap break-words">{msg.content}</div>
           </div>
@@ -417,7 +417,7 @@ function Bubble({ msg, onPasalClick, feedback, onFeedback }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="flex justify-start mb-5 gap-2.5">
-      <motion.div whileHover={{ rotate: 10 }} className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 mt-0.5 shadow-md border border-blue-400/30">
+      <motion.div whileHover={{ rotate: 10 }} className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-800 to-emerald-400 flex items-center justify-center shrink-0 mt-0.5 shadow-md border border-emerald-400/30">
         <Car size={18} className="text-white" />
       </motion.div>
       <div className="max-w-sm sm:max-w-lg lg:max-w-2xl w-full">
@@ -482,7 +482,7 @@ function Bubble({ msg, onPasalClick, feedback, onFeedback }) {
               <div className="flex items-center gap-2 mt-3">
                 <button
                   onClick={() => exportPDF(msg.violations, msg.userInput || "")}
-                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-semibold transition-all border border-blue-100"
+                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg font-semibold transition-all border border-emerald-100"
                 >
                   <Download size={12} /> Export PDF
                 </button>
@@ -522,13 +522,13 @@ function Bubble({ msg, onPasalClick, feedback, onFeedback }) {
 function TypingDots() {
   return (
     <div className="flex justify-start mb-5 gap-2.5">
-      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shrink-0 shadow-sm">
+      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shrink-0 shadow-sm">
         <Car size={18} className="text-white" />
       </div>
       <div className="bg-white card-surface border border-gray-100 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
         <div className="flex gap-1.5 items-center">
           {[0, 1, 2].map(i => (
-            <div key={i} className="w-2 h-2 rounded-full bg-blue-400"
+            <div key={i} className="w-2 h-2 rounded-full bg-emerald-400"
               style={{ animation: "typingBounce 1.2s ease-in-out infinite", animationDelay: `${i * 0.2}s` }} />
           ))}
           <span className="text-xs text-gray-400 ml-1">Menganalisis...</span>
@@ -576,7 +576,7 @@ function HomePage({ goTo }) {
           transition={{ duration: 0.55, type: "spring", stiffness: 90 }}
           className="relative overflow-hidden rounded-3xl shadow-2xl"
           style={{
-            background: "linear-gradient(135deg, #060e24 0%, #0e2156 40%, #1a3a8f 70%, #1e45b8 100%)",
+            background: "linear-gradient(135deg, #022c22 0%, #064e3b 40%, #059669 70%, #10b981 100%)",
           }}
         >
           {/* ── decorative layer ── */}
@@ -587,11 +587,11 @@ function HomePage({ goTo }) {
           }} />
           {/* glowing orbs */}
           <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full"
-            style={{ background: "radial-gradient(circle, rgba(96,165,250,0.18) 0%, transparent 70%)" }} />
+            style={{ background: "radial-gradient(circle, rgba(52,211,153,0.18) 0%, transparent 70%)" }} />
           <div className="pointer-events-none absolute -bottom-20 -left-20 w-72 h-72 rounded-full"
             style={{ background: "radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)" }} />
           <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-40 rounded-full"
-            style={{ background: "radial-gradient(ellipse, rgba(59,130,246,0.08) 0%, transparent 70%)" }} />
+            style={{ background: "radial-gradient(ellipse, rgba(16,185,129,0.08) 0%, transparent 70%)" }} />
 
           <div className="relative z-10 px-8 md:px-12 py-12 md:py-14">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-10 items-center">
@@ -636,7 +636,7 @@ function HomePage({ goTo }) {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.22 }}
-                  className="text-blue-200/80 leading-relaxed mb-8 text-base md:text-lg"
+                  className="text-emerald-200/80 leading-relaxed mb-8 text-base md:text-lg"
                 >
                   Deteksi pelanggaran, konsultasi aturan, dan analisis foto berkendara — didukung AI dengan referensi hukum akurat secara instan.
                 </motion.p>
@@ -651,9 +651,9 @@ function HomePage({ goTo }) {
                   <button
                     onClick={() => goTo("konsultasi")}
                     className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all active:scale-95"
-                    style={{ background: "#3b82f6", color: "#fff", boxShadow: "0 0 0 1px rgba(255,255,255,0.1) inset, 0 8px 24px rgba(59,130,246,0.4)" }}
-                    onMouseEnter={e => e.currentTarget.style.boxShadow = "0 0 0 1px rgba(255,255,255,0.15) inset, 0 12px 32px rgba(59,130,246,0.55)"}
-                    onMouseLeave={e => e.currentTarget.style.boxShadow = "0 0 0 1px rgba(255,255,255,0.1) inset, 0 8px 24px rgba(59,130,246,0.4)"}
+                    style={{ background: "#3b82f6", color: "#fff", boxShadow: "0 0 0 1px rgba(255,255,255,0.1) inset, 0 8px 24px rgba(16,185,129,0.4)" }}
+                    onMouseEnter={e => e.currentTarget.style.boxShadow = "0 0 0 1px rgba(255,255,255,0.15) inset, 0 12px 32px rgba(16,185,129,0.55)"}
+                    onMouseLeave={e => e.currentTarget.style.boxShadow = "0 0 0 1px rgba(255,255,255,0.1) inset, 0 8px 24px rgba(16,185,129,0.4)"}
                   >
                     <MessageSquare size={15} /> Mulai Konsultasi
                   </button>
@@ -715,7 +715,7 @@ function HomePage({ goTo }) {
                   <div className="px-4 pt-4 pb-2">
                     <div className="flex justify-end mb-3">
                       <div className="rounded-xl rounded-tr-sm px-3 py-2 text-xs font-medium text-white max-w-[85%]"
-                        style={{ background: "rgba(59,130,246,0.7)" }}>
+                        style={{ background: "rgba(16,185,129,0.7)" }}>
                         Saya naik motor tanpa helm dan tidak bawa SIM
                       </div>
                     </div>
@@ -750,7 +750,7 @@ function HomePage({ goTo }) {
                     <div className="flex items-center gap-2 rounded-lg px-3 py-2"
                       style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                       <span className="text-[11px] text-white/30 flex-1">Ketik pertanyaan hukum...</span>
-                      <Send size={11} className="text-blue-400 shrink-0" />
+                      <Send size={11} className="text-emerald-400 shrink-0" />
                     </div>
                   </div>
                 </div>
@@ -787,8 +787,8 @@ function HomePage({ goTo }) {
           {/* Services */}
           <section className="col-span-12 md:col-span-8 space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-1 h-4 rounded-full bg-blue-600" />
-              <span className="text-xs font-black uppercase tracking-widest text-blue-600">Layanan Utama</span>
+              <div className="w-1 h-4 rounded-full bg-emerald-600" />
+              <span className="text-xs font-black uppercase tracking-widest text-emerald-600">Layanan Utama</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
@@ -830,7 +830,7 @@ function HomePage({ goTo }) {
                   </div>
                   <h4 className="font-bold text-base text-info-heading mb-2">{title}</h4>
                   <p className="text-sm text-on-surface-variant leading-relaxed">{desc}</p>
-                  <div className="flex items-center gap-1 mt-4 text-xs font-bold text-blue-600 opacity-0 group-hover:opacity-100 translate-x-0 group-hover:translate-x-1 transition-all">
+                  <div className="flex items-center gap-1 mt-4 text-xs font-bold text-emerald-600 opacity-0 group-hover:opacity-100 translate-x-0 group-hover:translate-x-1 transition-all">
                     Buka sekarang <ChevronRight size={12} />
                   </div>
                 </motion.div>
@@ -867,8 +867,8 @@ function HomePage({ goTo }) {
               className="glass-card rounded-2xl p-5 h-full"
             >
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-1 h-4 rounded-full bg-blue-600" />
-                <p className="text-xs font-black uppercase tracking-widest text-blue-600">Coba Tanya</p>
+                <div className="w-1 h-4 rounded-full bg-emerald-600" />
+                <p className="text-xs font-black uppercase tracking-widest text-emerald-600">Coba Tanya</p>
               </div>
               <h3 className="font-bold text-lg text-info-heading mb-4">Contoh Pertanyaan</h3>
               <div className="flex flex-col gap-2">
@@ -1044,7 +1044,7 @@ function KonsultasiPage({ initMsg, setHistory }) {
       {/* Header */}
       <div className="chat-header bg-surface/90 backdrop-blur-md border-b border-outline-variant px-5 py-3.5 flex items-center justify-between shrink-0 z-10 sticky top-0 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-md">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-800 to-emerald-400 flex items-center justify-center shadow-md">
             <Car size={15} className="text-white" />
           </div>
           <div>
@@ -1062,7 +1062,7 @@ function KonsultasiPage({ initMsg, setHistory }) {
       <div className="flex-1 overflow-y-auto px-4 pt-5 pb-2 page-bg">
         {messages.length === 0 ? (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center h-full text-center pb-8 w-full">
-            <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-3xl p-6 mb-6 shadow-xl border border-blue-400/30"><Car size={48} className="text-white" /></motion.div>
+            <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="bg-gradient-to-br from-emerald-800 to-emerald-400 rounded-3xl p-6 mb-6 shadow-xl border border-emerald-400/30"><Car size={48} className="text-white" /></motion.div>
             <h3 className="font-extrabold text-info-heading text-2xl mb-3 tracking-tight">Konsultasi Hukum Berlalu Lintas</h3>
             <p className="font-medium text-gray-500 text-[15px] max-w-2xl w-full px-4 mb-8 leading-relaxed">
               Ceritakan kronologi untuk deteksi pelanggaran, atau tanyakan referensi aturan lalu lintas secara langsung.
@@ -1071,7 +1071,7 @@ function KonsultasiPage({ initMsg, setHistory }) {
               {EXAMPLES.map((ex, i) => (
                 <button key={i} onClick={() => send(ex)}
                   className="text-left font-normal text-sm bg-surface-container-lowest card-surface border border-outline-variant rounded-xl px-4 py-3 hover:border-primary-fixed hover:bg-surface-container-low transition-all text-info-heading flex items-center gap-2.5 group shadow-sm">
-                  <Search size={14} className="text-secondary group-hover:text-blue-500 shrink-0" />{ex}
+                  <Search size={14} className="text-secondary group-hover:text-emerald-500 shrink-0" />{ex}
                 </button>
               ))}
             </div>
@@ -1112,7 +1112,7 @@ function KonsultasiPage({ initMsg, setHistory }) {
             className="flex-1 bg-transparent text-sm text-on-surface font-normal resize-none outline-none placeholder-outline py-0.5"
             style={{ minHeight: "24px", maxHeight: "96px" }} />
           <button onClick={() => send()} disabled={(!input.trim() && !imageBase64) || loading}
-            className="bg-primary-fixed text-white rounded-xl p-2.5 hover:bg-blue-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0 shadow-sm active:scale-95">
+            className="bg-primary-fixed text-white rounded-xl p-2.5 hover:bg-emerald-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0 shadow-sm active:scale-95">
             <Send size={16} />
           </button>
         </div>
@@ -1157,7 +1157,7 @@ function InformasiPage() {
                 whileHover={{ y: -5, scale: 1.02 }} className="glass-card bg-surface-container-lowest rounded-2xl p-6 hover:shadow-lg hover:border-primary-fixed-dim transition-all cursor-pointer group flex flex-col"
               >
                 <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-blue-400/30">
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-800 to-emerald-400 rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-emerald-400/30">
                     <p.icon size={24} className="text-white" />
                   </div>
                   <div className="flex-1">
@@ -1196,8 +1196,8 @@ function RiwayatPage({ history, goToChat, onClear }) {
   if (history.length === 0) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex flex-col items-center justify-center text-center px-6 page-bg w-full">
-        <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-[2rem] p-8 mb-6 shadow-md border border-blue-200/50">
-          <History size={56} className="text-blue-500" />
+        <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-[2rem] p-8 mb-6 shadow-md border border-emerald-200/50">
+          <History size={56} className="text-emerald-500" />
         </motion.div>
         <h3 className="font-extrabold text-2xl text-gray-800 mb-3 tracking-tight">Belum Ada Riwayat</h3>
         <p className="font-medium text-gray-500 text-[15px] max-w-md w-full leading-relaxed">
@@ -1284,7 +1284,7 @@ function EvaluasiPage() {
   if (loading) return (
     <div className="h-full flex items-center justify-center page-bg">
       <div className="text-center text-gray-400">
-        <div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+        <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
         <p className="text-sm">Memuat statistik...</p>
       </div>
     </div>
@@ -1295,7 +1295,7 @@ function EvaluasiPage() {
       <WifiOff size={32} className="text-gray-300 mb-3" />
       <p className="text-sm font-semibold text-gray-500 mb-1">Tidak dapat memuat statistik</p>
       <p className="text-xs text-gray-400 mb-4">Pastikan backend Flask berjalan</p>
-      <button onClick={load} className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1.5">
+      <button onClick={load} className="text-sm text-emerald-600 hover:text-emerald-700 flex items-center gap-1.5">
         <RefreshCw size={13} /> Coba lagi
       </button>
     </div>
@@ -1316,7 +1316,7 @@ function EvaluasiPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-extrabold text-gray-800 flex items-center gap-3 tracking-tight">
-              <BarChart2 size={22} className="text-blue-600" /> Evaluasi Sistem
+              <BarChart2 size={22} className="text-emerald-600" /> Evaluasi Sistem
             </h1>
             <p className="text-sm text-gray-400 mt-1">Data kuantitatif untuk Bab IV skripsi</p>
           </div>
@@ -1327,7 +1327,7 @@ function EvaluasiPage() {
               {copied ? "Tersalin!" : "Salin Data"}
             </button>
             <button onClick={load}
-              className="flex items-center gap-1.5 text-xs px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl font-semibold transition-all">
+              className="flex items-center gap-1.5 text-xs px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl font-semibold transition-all">
               <RefreshCw size={12} /> Refresh
             </button>
           </div>
@@ -1338,7 +1338,7 @@ function EvaluasiPage() {
           {metrics.map((m, i) => (
             <div key={i} className="bg-surface-container-lowest glass-card rounded-2xl border border-outline-variant p-5 shadow-md hover:shadow-lg transition-shadow">
               <p className="text-xs text-gray-500 mb-1">{m.label}</p>
-              <p className="text-2xl font-extrabold text-blue-600">{m.val}<span className="text-base font-semibold text-gray-400">{m.unit}</span></p>
+              <p className="text-2xl font-extrabold text-emerald-600">{m.val}<span className="text-base font-semibold text-gray-400">{m.unit}</span></p>
             </div>
           ))}
         </div>
@@ -1393,7 +1393,7 @@ function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="bg-gradient-to-br from-primary-fixed to-blue-700 rounded-lg p-1.5 shadow-sm">
+              <div className="bg-gradient-to-br from-primary-fixed to-emerald-700 rounded-lg p-1.5 shadow-sm">
                 <Car size={16} className="text-white" />
               </div>
               <span className="font-bold text-info-heading ">TrafficAI</span>
@@ -1475,23 +1475,23 @@ export default function App() {
         <nav className="bg-surface border-b border-outline-variant shrink-0 z-50 shadow-sm transition-colors">
           <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <button onClick={() => goTo("home")} onDoubleClick={() => goTo("evaluasi")} className="flex items-center gap-2 group">
-              <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl p-2 shadow-md group-hover:shadow-blue-300/40 transition-shadow">
+              <div className="bg-gradient-to-br from-emerald-800 to-emerald-400 rounded-xl p-2 shadow-md group-hover:shadow-blue-300/40 transition-shadow">
                 <Car size={15} className="text-white" />
               </div>
-              <span className="font-extrabold text-info-heading text-lg tracking-tight">Traffic<span className="text-blue-600">AI</span></span>
+              <span className="font-extrabold text-info-heading text-lg tracking-tight">Traffic<span className="text-emerald-600">AI</span></span>
             </button>
 
             <div className="hidden sm:flex items-center gap-0.5">
               {NAV.map(({ id, label, icon: Icon }) => (
                 <button key={id} onClick={() => goTo(id)}
                   className={`relative flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${page === id
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/25"
+                    ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/25"
                     : "text-gray-500 hover:text-gray-800 hover:bg-gray-100"
                     }`}>
                   <Icon size={13} />
                   {label}
                   {id === "riwayat" && history.length > 0 && (
-                    <span className={`text-[10px] rounded-full w-4 h-4 flex items-center justify-center leading-none font-bold ${page === id ? "bg-white text-blue-600" : "bg-blue-600 text-white"}`}>
+                    <span className={`text-[10px] rounded-full w-4 h-4 flex items-center justify-center leading-none font-bold ${page === id ? "bg-white text-emerald-600" : "bg-emerald-600 text-white"}`}>
                       {history.length > 9 ? "9+" : history.length}
                     </span>
                   )}
@@ -1515,12 +1515,12 @@ export default function App() {
               {NAV.map(({ id, label, icon: Icon }) => (
                 <button key={id} onClick={() => goTo(id)}
                   className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-all ${page === id
-                    ? "bg-blue-600 text-white shadow-sm"
+                    ? "bg-emerald-600 text-white shadow-sm"
                     : "text-gray-600 hover:bg-gray-100"
                     }`}>
                   <Icon size={16} /> {label}
                   {id === "riwayat" && history.length > 0 && (
-                    <span className={`ml-auto text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold ${page === id ? "bg-white text-blue-600" : "bg-blue-600 text-white"}`}>
+                    <span className={`ml-auto text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold ${page === id ? "bg-white text-emerald-600" : "bg-emerald-600 text-white"}`}>
                       {history.length > 9 ? "9+" : history.length}
                     </span>
                   )}
