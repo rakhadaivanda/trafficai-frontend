@@ -1080,7 +1080,7 @@ function KonsultasiPage({ initMsg, setHistory }) {
                 <button key={i} onClick={() => send(ex)}
                   className="text-left font-normal text-sm bg-surface-container-lowest card-surface border border-outline-variant rounded-xl px-3 py-3 hover:border-primary-fixed hover:bg-surface-container-low transition-all text-info-heading flex items-start gap-2.5 group shadow-sm w-full overflow-hidden">
                   <Search size={14} className="text-secondary group-hover:text-emerald-500 shrink-0 mt-0.5" />
-                  <span className="leading-snug break-words min-w-0">{ex}</span>
+                  <span className="leading-snug flex-1">{ex}</span>
                 </button>
               ))}
             </div>
