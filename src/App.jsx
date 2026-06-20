@@ -1058,24 +1058,24 @@ function KonsultasiPage({ initMsg, setHistory }) {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-start sm:justify-center min-h-full text-center py-8 px-3 w-full overflow-hidden"
+            className="flex flex-col justify-start sm:justify-center min-h-full text-center py-8 px-3 w-full overflow-hidden"
           >
             <motion.div
               animate={{ y: [0, -8, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="bg-gradient-to-br from-emerald-800 to-emerald-400 rounded-3xl p-5 mb-5 shadow-xl border border-emerald-400/30"
+              className="bg-gradient-to-br from-emerald-800 to-emerald-400 rounded-3xl p-5 mb-5 shadow-xl border border-emerald-400/30 mx-auto w-fit"
             >
               <Car size={36} className="text-white" />
             </motion.div>
 
-            <h3 className="font-extrabold text-info-heading text-xl sm:text-2xl mb-2 tracking-tight">
+            <h3 className="font-extrabold text-info-heading text-xl sm:text-2xl mb-2 tracking-tight mx-auto">
               Konsultasi Hukum Berlalu Lintas
             </h3>
-            <p className="font-medium text-gray-500 text-sm sm:text-[15px] max-w-sm sm:max-w-xl w-full mb-6 leading-relaxed">
+            <p className="font-medium text-gray-500 text-sm sm:text-[15px] max-w-sm sm:max-w-xl w-full mb-6 leading-relaxed mx-auto">
               Ceritakan kronologi untuk deteksi pelanggaran, atau tanyakan referensi aturan lalu lintas secara langsung.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-xl mx-auto">
               {EXAMPLES.map((ex, i) => (
                 <button key={i} onClick={() => send(ex)}
                   className="text-left font-normal text-sm bg-surface-container-lowest card-surface border border-outline-variant rounded-xl px-3 py-3 hover:border-primary-fixed hover:bg-surface-container-low transition-all text-info-heading flex items-start gap-2.5 group shadow-sm w-full overflow-hidden">
