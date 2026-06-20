@@ -421,12 +421,12 @@ function Bubble({ msg, onPasalClick, feedback, onFeedback }) {
   if (isUser) {
     return (
       <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="flex justify-end mb-5 w-full">
-        <div className="max-w-[80%] min-w-0">
+        <div className="max-w-[85%] md:max-w-[75%]">
           <div className="bg-gradient-to-br from-emerald-800 to-emerald-400 text-white rounded-2xl rounded-tr-sm px-4 py-3 text-[14px] leading-relaxed shadow-md break-words">
             {msg.imageBase64 && (
               <img src={msg.imageBase64} alt="Upload" className="max-w-full h-auto rounded-lg mb-2 border border-emerald-500" style={{ maxHeight: 200 }} />
             )}
-            <div className="font-normal whitespace-pre-wrap break-words overflow-wrap-anywhere">{msg.content}</div>
+            <div className="font-normal whitespace-pre-wrap break-words">{msg.content}</div>
           </div>
           <p className="font-normal text-[11px] text-on-surface-variant mt-1.5 px-1 text-right">{msg.time}</p>
         </div>
