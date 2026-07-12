@@ -1212,10 +1212,10 @@ function KonsultasiPage({ initMsg, addHistory }) {
         id: msgId,
         role: "assistant",
         mode: mode,
-        content: !hasV ? data.message : undefined,
-        summary: hasV ? data.message : undefined,
+        content: !hasV ? (data.message || "") : null,
+        summary: hasV ? (data.message || "") : null,
         violations: data.violations ?? [],
-        avgConfidence: data.avg_confidence,
+        avgConfidence: data.avg_confidence ?? null,
         userInput: text,
         time: getTime(),
       };
