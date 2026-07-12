@@ -1113,8 +1113,8 @@ function HomePage({ goTo }) {
 }
 
 // ── Konsultasi ───────────────────────────────────
-function KonsultasiPage({ initMsg, addHistory }) {
-  const [messages, setMessages] = useState([]);
+function KonsultasiPage({ initMsg, initMessages, addHistory }) {
+  const [messages, setMessages] = useState(initMessages || []);
   const [input, setInput] = useState(initMsg || "");
   const [loading, setLoading] = useState(false);
   const [online, setOnline] = useState(null);
@@ -1682,6 +1682,7 @@ export default function App() {
   const [dark, toggleDark] = useDarkMode();
   const [page, setPage] = useState("home");
   const [initPrompt, setInitPrompt] = useState("");
+  const [activeChat, setActiveChat] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // Firebase auth state
@@ -1727,11 +1728,13 @@ export default function App() {
       return;
     }
     setPage(p);
+    setActiveChat(null);
     if (prompt) setInitPrompt(prompt);
     setMobileOpen(false);
   }, [user]);
 
   const goToChat = useCallback((h) => {
+    setActiveChat(h.messages || []);
     setPage("konsultasi");
     setMobileOpen(false);
   }, []);
@@ -1884,7 +1887,7 @@ export default function App() {
               {page === "login" && <AuthPage key="auth" onLogin={handleLogin} />}
               {page === "home" && <HomePage key="home" goTo={goTo} />}
               {page === "konsultasi" && user && (
-                <KonsultasiPage key={initPrompt || "chat"} initMsg={initPrompt} addHistory={addHistory} />
+                <KonsultasiPage key={initPrompt || (activeChat ? "history" : "chat")} initMsg={initPrompt} initMessages={activeChat} addHistory={addHistory} />
               )}
               {page === "informasi" && <InformasiPage key="info" />}
               {page === "riwayat" && user && <RiwayatPage key="riwayat" history={history} goToChat={goToChat} onClear={clearHistory} />}
