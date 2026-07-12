@@ -5,13 +5,35 @@ import {
   Car, AlertTriangle, ChevronRight, Clock, Shield, Zap, Search,
   RefreshCw, Wifi, WifiOff, Moon, Sun, Download, Share2,
   ThumbsUp, ThumbsDown, BarChart2, ExternalLink, Copy, Check, Camera, Upload, ImageIcon, Eye,
-  CreditCard, Smartphone, Wrench, Navigation, BellElectric, FileText, Lock, HardHat, Users, Lightbulb
+  CreditCard, Smartphone, Wrench, Navigation, FileText, Lock, HardHat, Users, Lightbulb,
+  LogOut, User, HelpCircle
 } from "lucide-react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, logoutUser, saveHistoryToFirestore, getHistoryFromFirestore, clearHistoryFromFirestore } from "./firebase";
+import AuthPage from "./pages/AuthPage";
+import GuidePage from "./pages/GuidePage";
 
 // ════════════════════════════════════════════════
 // CONFIG & CONSTANTS
 // ════════════════════════════════════════════════
 const API_BASE = import.meta.env.VITE_API_BASE || "https://rakhadaivanda-trafficai-backend.hf.space";
+
+/**
+ * Mengambil header Authorization berisi Firebase ID Token.
+ * Token ini dikirim ke backend untuk validasi autentikasi.
+ */
+async function getAuthHeaders() {
+  try {
+    const user = auth.currentUser;
+    if (user) {
+      const token = await user.getIdToken();
+      return { "Content-Type": "application/json", "Authorization": `Bearer ${token}` };
+    }
+  } catch (e) {
+    console.error("Gagal mengambil token autentikasi:", e);
+  }
+  return { "Content-Type": "application/json" };
+}
 
 const SEV = {
   high: { label: "Berat", bg: "#fef2f2", border: "#fecaca", pillBg: "#fee2e2", pillText: "#b91c1c" },
@@ -21,52 +43,180 @@ const SEV = {
 
 const PASAL_LIST = [
   {
-    pasal: "Pasal 280", jenis: "Tidak Memasang TNKB", sanksi: "Kurungan maks. 2 bulan / Denda maks. Rp500.000", icon: CreditCard, denda: 500000,
-    detail: "Setiap orang yang mengemudikan kendaraan bermotor di jalan yang tidak dipasangi Tanda Nomor Kendaraan Bermotor (TNKB) sebagaimana dimaksud dalam Pasal 68 ayat (1) dipidana dengan pidana kurungan paling lama 2 bulan atau denda paling banyak Rp500.000."
+    pasal: "Pasal 291 ayat (1)", jenis: "Tidak Menggunakan Helm SNI", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: HardHat, denda: 250000,
+    detail: "Setiap pengendara dan penumpang sepeda motor wajib menggunakan helm yang memenuhi standar nasional Indonesia (SNI)."
   },
   {
-    pasal: "Pasal 281", jenis: "Tidak Memiliki SIM", sanksi: "Kurungan maks. 4 bulan / Denda maks. Rp1.000.000", icon: CreditCard, denda: 1000000,
-    detail: "Setiap orang yang mengemudikan kendaraan bermotor di jalan yang tidak memiliki Surat Izin Mengemudi (SIM) sebagaimana dimaksud dalam Pasal 77 ayat (1) dipidana dengan pidana kurungan paling lama 4 bulan atau denda paling banyak Rp1.000.000."
+    pasal: "Pasal 281", jenis: "Tidak Memiliki SIM", sanksi: "Kurungan paling lama 4 bulan atau denda paling banyak Rp1.000.000", icon: FileText, denda: 1000000,
+    detail: "Setiap pengemudi kendaraan bermotor di jalan wajib memiliki Surat Izin Mengemudi (SIM) sesuai dengan jenis kendaraan yang dikemudikan."
   },
   {
-    pasal: "Pasal 283", jenis: "Menggunakan HP Saat Berkendara", sanksi: "Kurungan maks. 3 bulan / Denda maks. Rp750.000", icon: Smartphone, denda: 750000,
-    detail: "Setiap orang yang mengemudikan kendaraan bermotor di jalan secara tidak wajar dan melakukan kegiatan lain atau dipengaruhi oleh suatu keadaan yang mengakibatkan gangguan konsentrasi dalam mengemudi di jalan dipidana dengan pidana kurungan paling lama 3 bulan atau denda paling banyak Rp750.000."
+    pasal: "Pasal 288 ayat (1)", jenis: "Tidak Membawa STNK", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: FileText, denda: 500000,
+    detail: "Setiap pengemudi wajib membawa Surat Tanda Nomor Kendaraan Bermotor (STNK) sebagai bukti legalitas kendaraan."
   },
   {
-    pasal: "Pasal 285", jenis: "Kendaraan Tidak Memenuhi Syarat", sanksi: "Kurungan maks. 1 bulan / Denda maks. Rp250.000", icon: Wrench, denda: 250000,
-    detail: "Setiap orang yang mengemudikan sepeda motor di jalan yang tidak memenuhi persyaratan teknis dan laik jalan yang meliputi kaca spion, klakson, lampu utama, lampu rem, lampu penunjuk arah, alat pemantul cahaya, alat pengukur kecepatan, knalpot, dan kedalaman alat bantu rem dipidana dengan pidana kurungan paling lama 1 bulan atau denda paling banyak Rp250.000."
+    pasal: "Pasal 285 ayat (1)", jenis: "Tidak Memasang Kaca Spion", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: AlertTriangle, denda: 250000,
+    detail: "Sepeda motor yang dioperasikan di jalan wajib dilengkapi dengan kaca spion sesuai persyaratan teknis dan laik jalan."
   },
   {
-    pasal: "Pasal 287 (1)", jenis: "Melanggar Rambu / Marka Jalan", sanksi: "Kurungan maks. 2 bulan / Denda maks. Rp500.000", icon: Navigation, denda: 500000,
-    detail: "Setiap orang yang mengemudikan kendaraan bermotor di jalan yang melanggar aturan perintah atau larangan yang dinyatakan dengan rambu lalu lintas sebagaimana dimaksud dalam Pasal 106 ayat (4) huruf a atau marka jalan sebagaimana dimaksud dalam Pasal 106 ayat (4) huruf b dipidana dengan pidana kurungan paling lama 2 bulan atau denda paling banyak Rp500.000."
+    pasal: "Pasal 292", jenis: "Melebihi Kapasitas Penumpang Motor", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: AlertTriangle, denda: 250000,
+    detail: "Pengemudi sepeda motor dilarang membonceng penumpang lebih dari 1 orang di belakangnya."
   },
   {
-    pasal: "Pasal 287 (2)", jenis: "Menerobos Lampu Merah", sanksi: "Kurungan maks. 2 bulan / Denda maks. Rp500.000", icon: BellElectric, denda: 500000,
-    detail: "Setiap orang yang mengemudikan kendaraan bermotor di jalan yang melanggar aturan perintah atau larangan yang dinyatakan dengan alat pemberi isyarat lalu lintas sebagaimana dimaksud dalam Pasal 106 ayat (4) huruf c dipidana dengan pidana kurungan paling lama 2 bulan atau denda paling banyak Rp500.000."
+    pasal: "Pasal 287 ayat (2)", jenis: "Menerobos Lampu Merah", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: Lightbulb, denda: 500000,
+    detail: "Setiap pengemudi wajib mematuhi perintah atau isyarat alat pemberi isyarat lalu lintas (APILL)."
   },
   {
-    pasal: "Pasal 287 (5)", jenis: "Melebihi Batas Kecepatan", sanksi: "Kurungan maks. 2 bulan / Denda maks. Rp500.000", icon: Zap, denda: 500000,
-    detail: "Setiap orang yang mengemudikan kendaraan bermotor di jalan yang melanggar batas kecepatan paling tinggi atau paling rendah sebagaimana dimaksud dalam Pasal 106 ayat (4) huruf g atau Pasal 115 huruf a dipidana dengan pidana kurungan paling lama 2 bulan atau denda paling banyak Rp500.000."
+    pasal: "Pasal 283", jenis: "Menggunakan Ponsel Saat Berkendara", sanksi: "Kurungan paling lama 3 bulan atau denda paling banyak Rp750.000", icon: Smartphone, denda: 750000,
+    detail: "Setiap orang yang mengemudikan kendaraan bermotor dilarang menggunakan telepon yang mempengaruhi konsentrasi mengemudi."
   },
   {
-    pasal: "Pasal 288", jenis: "Tidak Membawa STNK / Dokumen", sanksi: "Kurungan maks. 2 bulan / Denda maks. Rp500.000", icon: FileText, denda: 500000,
-    detail: "Setiap orang yang mengemudikan kendaraan bermotor di jalan yang tidak dilengkapi dengan Surat Tanda Nomor Kendaraan Bermotor atau Surat Tanda Coba Kendaraan Bermotor yang ditetapkan oleh Kepolisian Negara Republik Indonesia dipidana dengan pidana kurungan paling lama 2 bulan atau denda paling banyak Rp500.000."
+    pasal: "Pasal 293 ayat (1)", jenis: "Tidak Menyalakan Lampu Utama", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: Lightbulb, denda: 250000,
+    detail: "Pengemudi diwajibkan menyalakan lampu utama kendaraan bermotor pada malam hari dan kondisi tertentu yang memerlukan lampu."
   },
   {
-    pasal: "Pasal 289", jenis: "Tidak Menggunakan Sabuk Pengaman", sanksi: "Kurungan maks. 1 bulan / Denda maks. Rp250.000", icon: Lock, denda: 250000,
-    detail: "Setiap orang yang mengemudikan kendaraan bermotor atau penumpang yang duduk di samping pengemudi yang tidak mengenakan sabuk keselamatan sebagaimana dimaksud dalam Pasal 106 ayat (6) dipidana dengan pidana kurungan paling lama 1 bulan atau denda paling banyak Rp250.000."
+    pasal: "Pasal 289", jenis: "Tidak Menggunakan Sabuk Pengaman", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: AlertTriangle, denda: 250000,
+    detail: "Setiap pengemudi dan penumpang kendaraan bermotor beroda 4 atau lebih wajib menggunakan sabuk keselamatan."
   },
   {
-    pasal: "Pasal 291 (1)", jenis: "Tidak Menggunakan Helm SNI", sanksi: "Kurungan maks. 1 bulan / Denda maks. Rp250.000", icon: HardHat, denda: 250000,
-    detail: "Setiap orang yang mengemudikan sepeda motor tidak mengenakan helm standar nasional Indonesia sebagaimana dimaksud dalam Pasal 106 ayat (8) dipidana dengan pidana kurungan paling lama 1 bulan atau denda paling banyak Rp250.000."
+    pasal: "Pasal 287 ayat (5)", jenis: "Melebihi Batas Kecepatan", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: AlertTriangle, denda: 500000,
+    detail: "Pengemudi wajib mematuhi batas kecepatan yang telah ditetapkan sesuai dengan rambu lalu lintas dan ketentuan yang berlaku."
   },
   {
-    pasal: "Pasal 292", jenis: "Melebihi Kapasitas Penumpang", sanksi: "Kurungan maks. 1 bulan / Denda maks. Rp250.000", icon: Users, denda: 250000,
-    detail: "Setiap orang yang mengemudikan sepeda motor yang membiarkan penumpangnya tidak mengenakan helm atau membawa penumpang lebih dari 1 orang sebagaimana dimaksud dalam Pasal 106 ayat (9) dipidana dengan pidana kurungan paling lama 1 bulan atau denda paling banyak Rp250.000."
+    pasal: "Pasal 280", jenis: "Tidak Memasang Tanda Nomor Kendaraan", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: AlertTriangle, denda: 500000,
+    detail: "Setiap kendaraan bermotor yang dioperasikan di jalan wajib dilengkapi TNKB yang sah sesuai peraturan Kepolisian Negara RI."
   },
   {
-    pasal: "Pasal 293 (1)", jenis: "Tidak Menyalakan Lampu Utama", sanksi: "Kurungan maks. 1 bulan / Denda maks. Rp250.000", icon: Lightbulb, denda: 250000,
-    detail: "Setiap orang yang mengemudikan kendaraan bermotor di jalan tanpa menyalakan lampu utama pada malam hari dan kondisi tertentu sebagaimana dimaksud dalam Pasal 107 ayat (1) dipidana dengan pidana kurungan paling lama 1 bulan atau denda paling banyak Rp250.000."
+    pasal: "Pasal 287 ayat (1)", jenis: "Melanggar Rambu Lalu Lintas", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: AlertTriangle, denda: 500000,
+    detail: "Pengemudi wajib mematuhi ketentuan rambu perintah atau rambu larangan yang ditempatkan sebagai petunjuk lalu lintas."
+  },
+  {
+    pasal: "Pasal 287 ayat (1)", jenis: "Melanggar Marka Jalan", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: AlertTriangle, denda: 500000,
+    detail: "Setiap pengemudi wajib mematuhi marka jalan sebagai batas, larangan, perintah, atau petunjuk lalu lintas."
+  },
+  {
+    pasal: "Pasal 288 ayat (2)", jenis: "Tidak Memiliki Surat Kendaraan yang Sah (BPKB)", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: FileText, denda: 500000,
+    detail: "Pengemudi wajib dapat menunjukkan dokumen kepemilikan kendaraan yang sah kepada petugas yang berwenang."
+  },
+  {
+    pasal: "Pasal 311 ayat (1)", jenis: "Mengemudi dalam Pengaruh Alkohol atau Narkoba", sanksi: "Kurungan paling lama 1 tahun atau denda paling banyak Rp3.000.000", icon: AlertTriangle, denda: 3000000,
+    detail: "Setiap orang yang mengemudikan kendaraan bermotor di jalan secara tidak wajar karena pengaruh alkohol/narkoba membahayakan keselamatan."
+  },
+  {
+    pasal: "Pasal 287 ayat (3)", jenis: "Parkir di Tempat Terlarang", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: AlertTriangle, denda: 500000,
+    detail: "Pengemudi dilarang berhenti atau parkir pada tempat yang dilarang sesuai rambu atau marka larangan."
+  },
+  {
+    pasal: "Pasal 287", jenis: "Tidak Memberikan Prioritas pada Kendaraan Darurat", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: AlertTriangle, denda: 500000,
+    detail: "Pengemudi wajib memberikan jalan kepada kendaraan bermotor yang memiliki hak utama seperti ambulans, pemadam, dan polisi."
+  },
+  {
+    pasal: "Pasal 297", jenis: "Melakukan Balapan Liar", sanksi: "Kurungan paling lama 1 tahun atau denda paling banyak Rp3.000.000", icon: AlertTriangle, denda: 3000000,
+    detail: "Setiap orang dilarang mengemudikan kendaraan bermotor secara balapan di jalan umum."
+  },
+  {
+    pasal: "Pasal 307", jenis: "Muatan Kendaraan Melebihi Batas", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: AlertTriangle, denda: 500000,
+    detail: "Pengemudi kendaraan angkutan barang dilarang memuat barang melebihi kapasitas yang ditetapkan."
+  },
+  {
+    pasal: "Pasal 287 ayat (1)", jenis: "Berkendara Melawan Arus", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: AlertTriangle, denda: 500000,
+    detail: "Pengemudi dilarang berjalan melawan arus lalu lintas karena membahayakan keselamatan pengguna jalan lain."
+  },
+  {
+    pasal: "Pasal 273 ayat (1)", jenis: "Penyelenggara jalan tidak perbaiki jalan rusak (luka ringan)", sanksi: "Penjara paling lama 6 bulan atau denda paling banyak Rp12.000.000", icon: AlertTriangle, denda: 12000000,
+    detail: "Penyelenggara jalan yang tidak dengan segera dan patut memperbaiki jalan yang rusak yang mengakibatkan kecelakaan lalu lintas dengan korban luka ringan."
+  },
+  {
+    pasal: "Pasal 273 ayat (2)", jenis: "Jalan rusak mengakibatkan luka berat", sanksi: "Penjara paling lama 1 tahun atau denda paling banyak Rp24.000.000", icon: AlertTriangle, denda: 24000000,
+    detail: "Penyelenggara jalan yang tidak memperbaiki jalan rusak sehingga mengakibatkan kecelakaan dengan korban luka berat."
+  },
+  {
+    pasal: "Pasal 273 ayat (3)", jenis: "Jalan rusak mengakibatkan meninggal dunia", sanksi: "Penjara paling lama 5 tahun atau denda paling banyak Rp120.000.000", icon: AlertTriangle, denda: 120000000,
+    detail: "Penyelenggara jalan yang tidak memperbaiki jalan rusak sehingga mengakibatkan kecelakaan yang mengakibatkan orang lain meninggal dunia."
+  },
+  {
+    pasal: "Pasal 275 ayat (1)", jenis: "Merusak rambu atau marka jalan (gangguan fungsi)", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: AlertTriangle, denda: 250000,
+    detail: "Setiap orang yang melakukan perbuatan yang mengakibatkan gangguan pada fungsi Rambu Lalu Lintas, Marka Jalan, Alat Pemberi Isyarat Lalu Lintas, fasilitas Pejalan Kaki, dan alat pengaman Pengguna Jalan."
+  },
+  {
+    pasal: "Pasal 276", jenis: "Kendaraan umum trayek tidak singgah terminal", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: AlertTriangle, denda: 250000,
+    detail: "Setiap orang yang mengemudikan Kendaraan Bermotor Umum dalam trayek tidak singgah di Terminal."
+  },
+  {
+    pasal: "Pasal 278", jenis: "Mobil tanpa perlengkapan (ban cadangan, segitiga, dll)", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: AlertTriangle, denda: 250000,
+    detail: "Setiap orang yang mengemudikan Kendaraan Bermotor beroda empat atau lebih di Jalan yang tidak dilengkapi dengan perlengkapan berupa ban cadangan, segitiga pengaman, dongkrak, pembuka roda, dan peralatan pertolongan pertama pada kecelakaan."
+  },
+  {
+    pasal: "Pasal 279", jenis: "Kendaraan dipasangi perlengkapan mengganggu keselamatan", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: AlertTriangle, denda: 500000,
+    detail: "Setiap orang yang mengemudikan Kendaraan Bermotor di Jalan yang dipasangi perlengkapan yang dapat mengganggu keselamatan berlalu lintas."
+  },
+  {
+    pasal: "Pasal 282", jenis: "Tidak mematuhi perintah polisi", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: AlertTriangle, denda: 250000,
+    detail: "Setiap Pengguna Jalan yang tidak mematuhi perintah yang diberikan oleh Petugas Kepolisian Negara Republik Indonesia."
+  },
+  {
+    pasal: "Pasal 284", jenis: "Tidak mengutamakan pejalan kaki/pesepeda", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: AlertTriangle, denda: 500000,
+    detail: "Setiap orang yang mengemudikan Kendaraan Bermotor dengan tidak mengutamakan keselamatan Pejalan Kaki atau pesepeda."
+  },
+  {
+    pasal: "Pasal 285 ayat (2)", jenis: "Mobil tidak memenuhi persyaratan teknis", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: AlertTriangle, denda: 500000,
+    detail: "Setiap orang yang mengemudikan Kendaraan Bermotor beroda empat atau lebih di Jalan yang tidak memenuhi persyaratan teknis yang meliputi kaca spion, klakson, lampu utama, lampu mundur, lampu tanda batas dimensi badan kendaraan, lampu gandengan, lampu rem, lampu penunjuk arah, alat pemantul cahaya, alat pengukur kecepatan, kedalaman alur ban, kaca depan, spakbor, bumper, penggandengan, penempelan, atau penghapus kaca."
+  },
+  {
+    pasal: "Pasal 286", jenis: "Mobil tidak memenuhi syarat laik jalan", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: AlertTriangle, denda: 500000,
+    detail: "Setiap orang yang mengemudikan Kendaraan Bermotor beroda empat atau lebih di Jalan yang tidak memenuhi persyaratan laik jalan."
+  },
+  {
+    pasal: "Pasal 287 ayat (3)", jenis: "Melanggar aturan gerakan lalu lintas/parkir", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: AlertTriangle, denda: 250000,
+    detail: "Setiap orang yang mengemudikan Kendaraan Bermotor di Jalan yang melanggar aturan gerakan lalu lintas atau tata cara berhenti dan Parkir."
+  },
+  {
+    pasal: "Pasal 287 ayat (4)", jenis: "Melanggar hak utama kendaraan prioritas", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: AlertTriangle, denda: 250000,
+    detail: "Setiap orang yang mengemudikan Kendaraan Bermotor di Jalan yang melanggar ketentuan mengenai penggunaan atau hak utama bagi Kendaraan Bermotor yang menggunakan alat peringatan dengan bunyi dan sinar."
+  },
+  {
+    pasal: "Pasal 288 ayat (2)", jenis: "Tidak dapat menunjukkan SIM sah", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: FileText, denda: 250000,
+    detail: "Setiap orang yang mengemudikan Kendaraan Bermotor di Jalan yang tidak dapat menunjukkan Surat Izin Mengemudi yang sah."
+  },
+  {
+    pasal: "Pasal 288 ayat (3)", jenis: "Angkutan umum tanpa surat uji berkala", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: AlertTriangle, denda: 500000,
+    detail: "Setiap orang yang mengemudikan mobil penumpang umum, mobil bus, mobil barang, kereta gandengan, dan kereta tempelan yang tidak dilengkapi dengan surat keterangan uji berkala dan tanda lulus uji berkala yang sah."
+  },
+  {
+    pasal: "Pasal 290", jenis: "Kendaraan tanpa rumah-rumah tanpa sabuk & helm", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: AlertTriangle, denda: 250000,
+    detail: "Setiap orang yang mengemudikan dan penumpang Kendaraan Bermotor selain Sepeda Motor yang tidak dilengkapi dengan rumah-rumah dan tidak mengenakan sabuk keselamatan dan helm."
+  },
+  {
+    pasal: "Pasal 291 ayat (2)", jenis: "Penumpang motor tidak pakai helm", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: AlertTriangle, denda: 250000,
+    detail: "Setiap orang yang mengemudikan Sepeda Motor yang membiarkan penumpangnya tidak mengenakan helm."
+  },
+  {
+    pasal: "Pasal 293 ayat (2)", jenis: "Motor tidak nyalakan lampu siang hari", sanksi: "Kurungan paling lama 15 hari atau denda paling banyak Rp100.000", icon: AlertTriangle, denda: 100000,
+    detail: "Setiap orang yang mengemudikan Sepeda Motor di Jalan tanpa menyalakan lampu utama pada siang hari."
+  },
+  {
+    pasal: "Pasal 294", jenis: "Tidak memberi isyarat saat belok/berbalik arah", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: AlertTriangle, denda: 250000,
+    detail: "Setiap orang yang mengemudikan Kendaraan Bermotor yang akan membelok atau berbalik arah, tanpa memberikan isyarat dengan lampu penunjuk arah atau isyarat tangan."
+  },
+  {
+    pasal: "Pasal 295", jenis: "Tidak memberi isyarat saat pindah lajur", sanksi: "Kurungan paling lama 1 bulan atau denda paling banyak Rp250.000", icon: AlertTriangle, denda: 250000,
+    detail: "Setiap orang yang mengemudikan Kendaraan Bermotor yang akan berpindah lajur atau bergerak ke samping tanpa memberikan isyarat."
+  },
+  {
+    pasal: "Pasal 296", jenis: "Tidak berhenti di perlintasan kereta api", sanksi: "Kurungan paling lama 3 bulan atau denda paling banyak Rp750.000", icon: AlertTriangle, denda: 750000,
+    detail: "Setiap orang yang mengemudikan Kendaraan Bermotor pada perlintasan antara kereta api dan Jalan yang tidak berhenti ketika sinyal sudah berbunyi, palang pintu kereta api sudah mulai ditutup, dan/atau ada isyarat lain."
+  },
+  {
+    pasal: "Pasal 298", jenis: "Tidak memasang segitiga pengaman saat darurat", sanksi: "Kurungan paling lama 2 bulan atau denda paling banyak Rp500.000", icon: AlertTriangle, denda: 500000,
+    detail: "Setiap orang yang mengemudikan Kendaraan Bermotor yang tidak memasang segitiga pengaman, lampu isyarat peringatan bahaya, atau isyarat lain pada saat berhenti atau Parkir dalam keadaan darurat di Jalan."
+  },
+  {
+    pasal: "Pasal 310 ayat (1)", jenis: "Kelalaian menyebabkan kecelakaan (kerusakan)", sanksi: "Penjara paling lama 6 bulan atau denda paling banyak Rp1.000.000", icon: AlertTriangle, denda: 1000000,
+    detail: "Setiap orang yang mengemudikan Kendaraan Bermotor yang karena kelalaiannya mengakibatkan Kecelakaan Lalu Lintas dengan kerusakan Kendaraan dan/atau barang."
+  },
+  {
+    pasal: "Pasal 312", jenis: "Kabur dari kecelakaan (tabrak lari)", sanksi: "Penjara paling lama 3 tahun atau denda paling banyak Rp75.000.000", icon: AlertTriangle, denda: 75000000,
+    detail: "Setiap orang yang mengemudikan Kendaraan Bermotor yang terlibat Kecelakaan Lalu Lintas dan dengan sengaja tidak menghentikan kendaraannya, tidak memberikan pertolongan, atau tidak melaporkan Kecelakaan Lalu Lintas kepada Kepolisian Negara Republik Indonesia terdekat tanpa alasan yang patut."
   },
 ];
 
@@ -84,6 +234,10 @@ const EXAMPLES = [
 // ════════════════════════════════════════════════
 const ThemeCtx = createContext({ dark: false, toggle: () => { } });
 const useTheme = () => useContext(ThemeCtx);
+
+// Auth context
+const AuthCtx = createContext({ user: null, loading: true });
+const useAuth = () => useContext(AuthCtx);
 
 // ════════════════════════════════════════════════
 // HELPERS
@@ -183,27 +337,36 @@ function shareWhatsApp(violations, userInput) {
 // ════════════════════════════════════════════════
 // HOOKS
 // ════════════════════════════════════════════════
-function usePersistentHistory() {
-  const [history, setHistoryRaw] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem("trafficai_history") || "[]");
-    } catch { return []; }
-  });
+function useFirestoreHistory(user) {
+  const [history, setHistoryRaw] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
-  const setHistory = useCallback((updater) => {
-    setHistoryRaw(prev => {
-      const next = typeof updater === "function" ? updater(prev) : updater;
-      try { localStorage.setItem("trafficai_history", JSON.stringify(next.slice(0, 50))); } catch { }
-      return next;
-    });
-  }, []);
+  // Load history from Firestore when user changes
+  useEffect(() => {
+    if (!user) {
+      setHistoryRaw([]);
+      return;
+    }
+    setHistoryLoading(true);
+    getHistoryFromFirestore(user.uid)
+      .then((items) => setHistoryRaw(items))
+      .catch(() => setHistoryRaw([]))
+      .finally(() => setHistoryLoading(false));
+  }, [user]);
 
-  const clearHistory = useCallback(() => {
-    localStorage.removeItem("trafficai_history");
+  const addHistory = useCallback(async (item) => {
+    if (!user) return;
+    setHistoryRaw(prev => [item, ...prev].slice(0, 50));
+    await saveHistoryToFirestore(user.uid, item);
+  }, [user]);
+
+  const clearHistory = useCallback(async () => {
+    if (!user) return;
     setHistoryRaw([]);
-  }, []);
+    await clearHistoryFromFirestore(user.uid);
+  }, [user]);
 
-  return [history, setHistory, clearHistory];
+  return [history, addHistory, clearHistory, historyLoading];
 }
 
 function useDarkMode() {
@@ -322,9 +485,10 @@ function FeedbackButtons({ msgId, query, feedback, onFeedback }) {
   const send = async (type) => {
     onFeedback(msgId, type);
     try {
+      const hdrs = await getAuthHeaders();
       await fetch(`${API_BASE}/api/feedback`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: hdrs,
         body: JSON.stringify({ messageId: msgId, feedback: type, query }),
       });
     } catch { }
@@ -497,21 +661,7 @@ function Bubble({ msg, onPasalClick, feedback, onFeedback }) {
               ))}
               {/* Denda total */}
               <DendaBox violations={msg.violations} />
-              {/* Action buttons */}
-              <div className="flex items-center gap-2 mt-3">
-                <button
-                  onClick={() => exportPDF(msg.violations, msg.userInput || "")}
-                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg font-semibold transition-all border border-emerald-100"
-                >
-                  <Download size={12} /> Export PDF
-                </button>
-                <button
-                  onClick={() => shareWhatsApp(msg.violations, msg.userInput || "")}
-                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg font-semibold transition-all border border-emerald-100"
-                >
-                  <Share2 size={12} /> Share WA
-                </button>
-              </div>
+
               {/* Disclaimer */}
               <div className="mt-3 rounded-xl bg-gray-50 border border-gray-100 p-3">
                 <p className="text-xs text-gray-400 leading-relaxed">
@@ -577,6 +727,7 @@ function StatusBadge({ online }) {
 
 // ── Home ─────────────────────────────────────────
 function HomePage({ goTo }) {
+  const [showPDF, setShowPDF] = useState(false);
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -584,7 +735,7 @@ function HomePage({ goTo }) {
       exit={{ opacity: 0 }}
       className="overflow-y-auto h-full w-full"
     >
-      <div className="max-w-container-max mx-auto px-md py-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
 
         {/* ══════════════════════════════════════
             HERO
@@ -799,8 +950,8 @@ function HomePage({ goTo }) {
                   gradient: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
                   glow: "rgba(16,185,129,0.20)",
                   title: "Database Pasal",
-                  desc: "12+ pasal UU No.22 Tahun 2009 dengan penjelasan mudah dipahami & pencarian cepat.",
-                  badge: "12+ Pasal"
+                  desc: "45+ pasal UU No.22 Tahun 2009 dengan penjelasan mudah dipahami & pencarian cepat.",
+                  badge: "45+ Pasal"
                 },
               ].map(({ id, icon: Icon, gradient, glow, title, desc, badge }) => (
                 <motion.div
@@ -891,6 +1042,70 @@ function HomePage({ goTo }) {
           </aside>
         </div>
 
+        
+        {/* Referensi Undang-Undang */}
+        <section className="max-w-6xl mx-auto mb-10">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-800 to-emerald-500 flex items-center justify-center shadow-md text-white">
+              <BookOpen size={20} />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-xl text-info-heading">UU No. 22 Tahun 2009</h3>
+              <p className="text-sm text-gray-500 font-medium">Referensi resmi pasal pelanggaran lalu lintas</p>
+            </div>
+            <button 
+              onClick={() => setShowPDF(!showPDF)} 
+              className="ml-auto text-xs font-bold px-4 py-2 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-100 transition-colors flex items-center gap-2"
+            >
+              <FileText size={14} /> {showPDF ? "Tutup PDF" : "Lihat PDF Asli"}
+            </button>
+            <span className="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">45+ Pasal</span>
+          </div>
+          
+          <AnimatePresence>
+            {showPDF && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }} 
+                animate={{ opacity: 1, height: 600 }} 
+                exit={{ opacity: 0, height: 0 }}
+                className="w-full mb-6 rounded-2xl overflow-hidden border border-outline-variant shadow-lg"
+              >
+                <iframe src="/UU_22_2009.pdf" width="100%" height="100%" title="UU No. 22 Tahun 2009" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {PASAL_LIST.slice(0, 6).map((item, i) => {
+              const Icon = item.icon || AlertTriangle;
+              return (
+                <motion.div
+                  key={i}
+                  whileHover={{ y: -4, scale: 1.01 }}
+                  onClick={() => { /* Buka modal (opsional, bisa integrasi dengan modal yang sudah ada di Laws page) */ }}
+                  className="glass-card p-4 rounded-2xl cursor-pointer border border-outline-variant hover:border-emerald-300 transition-all group"
+                >
+                  <div className="flex gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50/80 flex items-center justify-center text-emerald-600 shrink-0 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                      <Icon size={18} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-info-heading text-sm line-clamp-1" title={item.jenis}>{item.jenis}</h4>
+                      <p className="text-xs font-black text-emerald-600">{item.pasal}</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 line-clamp-2 mt-2">{item.sanksi}</p>
+                </motion.div>
+              )
+            })}
+          </div>
+          <div className="mt-6 text-center">
+            <button onClick={() => { goTo("informasi"); window.scrollTo(0, 0); }} className="text-sm font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-5 py-2.5 rounded-full transition-colors inline-flex items-center gap-2">
+              <BookOpen size={14} /> Lihat Semua Pasal di Menu Informasi
+            </button>
+          </div>
+        </section>
+
         <Footer />
       </div>
     </motion.div>
@@ -898,7 +1113,7 @@ function HomePage({ goTo }) {
 }
 
 // ── Konsultasi ───────────────────────────────────
-function KonsultasiPage({ initMsg, setHistory }) {
+function KonsultasiPage({ initMsg, addHistory }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState(initMsg || "");
   const [loading, setLoading] = useState(false);
@@ -970,9 +1185,10 @@ function KonsultasiPage({ initMsg, setHistory }) {
         ? { image_base64: imgB64.split(",")[1] ?? imgB64, filename: "chat_image.jpg" }
         : { message: text };
 
+      const hdrs = await getAuthHeaders();
       const res = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: hdrs,
         body: JSON.stringify(payload),
         signal: AbortSignal.timeout(120000),
       });
@@ -1008,13 +1224,13 @@ function KonsultasiPage({ initMsg, setHistory }) {
       setMessages(finalChat);
 
       if (hasV) {
-        setHistory(prev => [{
+        addHistory({
           id: Date.now(),
           preview: text.length > 60 ? text.slice(0, 60) + "…" : text,
           dateStr: getDate() + ", " + getTime(),
           count: data.violations.length,
           messages: finalChat,
-        }, ...prev]);
+        });
       }
     } catch (err) {
       setOnline(false);
@@ -1030,7 +1246,7 @@ function KonsultasiPage({ initMsg, setHistory }) {
     } finally {
       setLoading(false);
     }
-  }, [input, loading, messages, setHistory]);
+  }, [input, loading, messages, addHistory]);
 
   return (
     <div className="flex flex-col h-full">
@@ -1159,7 +1375,7 @@ function InformasiPage() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="overflow-y-auto h-full w-full page-bg">
       {modal && <PasalModal pasal={modal} onClose={() => setModal(null)} />}
-      <div className="max-w-container-max mx-auto px-md py-lg min-h-screen flex flex-col">
+      <div className="max-w-7xl mx-auto px-6 py-12 min-h-screen flex flex-col">
         <div className="mb-8">
           <h1 className="font-extrabold tracking-tighter text-4xl md:text-5xl text-info-heading mb-2 drop-shadow-sm">Database Aturan Lalu Lintas</h1>
           <p className="font-medium text-on-surface-variant text-base">UU No. 22 Tahun 2009 — klik kartu untuk detail bunyi pasal</p>
@@ -1227,7 +1443,7 @@ function RiwayatPage({ history, goToChat, onClear }) {
         </motion.div>
         <h3 className="font-extrabold text-2xl text-gray-800 mb-3 tracking-tight">Belum Ada Riwayat</h3>
         <p className="font-medium text-gray-500 text-[15px] max-w-md w-full leading-relaxed">
-          Riwayat tersimpan otomatis ke browser setelah Anda melakukan konsultasi.
+          Riwayat tersimpan otomatis ke cloud setelah Anda melakukan konsultasi.
         </p>
       </motion.div>
     );
@@ -1235,7 +1451,7 @@ function RiwayatPage({ history, goToChat, onClear }) {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="overflow-y-auto h-full w-full page-bg">
-      <div className="max-w-3xl mx-auto px-md py-lg min-h-screen flex flex-col">
+      <div className="max-w-3xl mx-auto px-6 py-12 min-h-screen flex flex-col">
         <div className="flex items-center justify-between mb-8">
           <h1 className="font-extrabold tracking-tighter text-4xl md:text-5xl text-info-heading drop-shadow-sm">Riwayat Konsultasi</h1>
           <button onClick={onClear} className="font-normal text-xs text-on-error-container bg-error-container hover:bg-red-200 transition-colors flex items-center gap-1 px-3 py-1.5 rounded-lg shadow-sm">
@@ -1282,16 +1498,66 @@ function RiwayatPage({ history, goToChat, onClear }) {
   );
 }
 
-// ── Evaluasi (Admin / Bab IV) ─────────────────────
+
+// ── Tentang ──────────────────────────────────────
+function Footer() {
+  return (
+    <footer className="bg-surface-container-lowest border-t border-outline-variant mt-10">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="bg-gradient-to-br from-primary-fixed to-emerald-700 rounded-lg p-1.5 shadow-sm">
+                <Car size={16} className="text-white" />
+              </div>
+              <span className="font-bold text-info-heading ">TrafficAI</span>
+            </div>
+            <p className="font-normal text-sm text-on-surface-variant mb-4">
+              Sistem edukasi hukum berbasis AI yang membantu masyarakat memahami pelanggaran lalu lintas dan sanksinya berdasarkan UU No. 22 Tahun 2009.
+            </p>
+          </div>
+
+          <div>
+            <h4 className="font-bold text-lg text-info-heading mb-4">Teknologi</h4>
+            <ul className="space-y-2 font-normal text-sm text-on-surface-variant">
+              <li className="flex items-center gap-2"><span className="text-info-heading"><Zap size={14} /></span> Groq API + GPT-OSS-120B</li>
+              <li className="flex items-center gap-2"><span className="text-info-heading"><Search size={14} /></span> RAG & ChromaDB</li>
+              <li className="flex items-center gap-2"><span className="text-info-heading"><BookOpen size={14} /></span> UU No. 22 Tahun 2009</li>
+              <li className="flex items-center gap-2"><span className="text-info-heading"><Shield size={14} /></span> React + Tailwind v4</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-bold text-lg text-info-heading mb-4">Disclaimer</h4>
+            <div className="bg-error-container text-on-error-container p-3 rounded-lg flex items-start gap-2">
+              <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+              <p className="font-normal text-[12px] leading-relaxed">
+                Hasil analisis bersifat edukatif. Informasi ini tidak menggantikan keputusan resmi pihak berwenang (Kepolisian/Pengadilan).
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-outline-variant mt-8 pt-6 flex flex-col md:flex-row items-center justify-between font-normal text-xs text-outline">
+          <p>&copy; {new Date().getFullYear()} TrafficAI. All rights reserved.</p>
+          <p>Didesain untuk Profesionalisme & Edukasi</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+
+
+// ── Evaluasi (Admin / Bab IV) ─────────────────────────────────────────────────────────────
 function EvaluasiPage() {
-  const [stats, setStats] = useState(null);
+  const [stats, setStats]   = useState(null);
   const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied]   = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/stats`);
+      const res  = await fetch(`${API_BASE}/api/stats`);
       const data = await res.json();
       setStats(data);
     } catch {
@@ -1303,14 +1569,14 @@ function EvaluasiPage() {
 
   const copyStats = () => {
     if (!stats) return;
-    const text = `TrafficAI — Statistik Evaluasi\n\nTotal Query: ${stats.total_queries}\nQuery Pelanggaran: ${stats.violation_queries}\nRata-rata Pelanggaran/Kasus: ${stats.avg_violations_per_case}\nRetrieval Relevance: ${(stats.avg_confidence * 100).toFixed(1)}%\nFeedback Positif: ${stats.positive_feedback}\nFeedback Negatif: ${stats.negative_feedback}\nTingkat Kepuasan: ${stats.satisfaction_rate}%`;
+    const text = `TrafficAI — Statistik Evaluasi\n\nTotal Query: ${stats.total_queries}\nQuery Pelanggaran: ${stats.violation_queries}\nRata-rata Pelanggaran/Kasus: ${stats.avg_violations_per_case}\nFeedback Positif: ${stats.positive_feedback}\nFeedback Negatif: ${stats.negative_feedback}\nTingkat Kepuasan: ${stats.satisfaction_rate}%`;
     navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
   };
 
   if (loading) return (
     <div className="h-full flex items-center justify-center page-bg">
       <div className="text-center text-gray-400">
-        <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+        <div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
         <p className="text-sm">Memuat statistik...</p>
       </div>
     </div>
@@ -1321,28 +1587,27 @@ function EvaluasiPage() {
       <WifiOff size={32} className="text-gray-300 mb-3" />
       <p className="text-sm font-semibold text-gray-500 mb-1">Tidak dapat memuat statistik</p>
       <p className="text-xs text-gray-400 mb-4">Pastikan backend Flask berjalan</p>
-      <button onClick={load} className="text-sm text-emerald-600 hover:text-emerald-700 flex items-center gap-1.5">
+      <button onClick={load} className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1.5">
         <RefreshCw size={13} /> Coba lagi
       </button>
     </div>
   );
 
   const metrics = [
-    { label: "Total Query", val: stats.total_queries, unit: "" },
-    { label: "Query Pelanggaran", val: stats.violation_queries, unit: "" },
+    { label: "Total Query",           val: stats.total_queries,           unit: "" },
+    { label: "Query Pelanggaran",     val: stats.violation_queries,       unit: "" },
     { label: "Rata-rata Pelanggaran", val: stats.avg_violations_per_case, unit: "/kasus" },
-    { label: "Retrieval Relevance", val: (stats.avg_confidence * 100).toFixed(1), unit: "%" },
-    { label: "Feedback Positif 👍", val: stats.positive_feedback, unit: "" },
-    { label: "Feedback Negatif 👎", val: stats.negative_feedback, unit: "" },
+    { label: "Feedback Positif 👍",   val: stats.positive_feedback,       unit: "" },
+    { label: "Feedback Negatif 👎",   val: stats.negative_feedback,       unit: "" },
   ];
 
   return (
-    <div className="overflow-y-auto h-full w-full page-bg">
+    <div className="overflow-y-auto h-full page-bg">
       <div className="max-w-3xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-extrabold text-gray-800 flex items-center gap-3 tracking-tight">
-              <BarChart2 size={22} className="text-emerald-600" /> Evaluasi Sistem
+            <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <BarChart2 size={22} className="text-blue-600" /> Evaluasi Sistem
             </h1>
             <p className="text-sm text-gray-400 mt-1">Data kuantitatif untuk Bab IV skripsi</p>
           </div>
@@ -1353,7 +1618,7 @@ function EvaluasiPage() {
               {copied ? "Tersalin!" : "Salin Data"}
             </button>
             <button onClick={load}
-              className="flex items-center gap-1.5 text-xs px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl font-semibold transition-all">
+              className="flex items-center gap-1.5 text-xs px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl font-semibold transition-all">
               <RefreshCw size={12} /> Refresh
             </button>
           </div>
@@ -1362,9 +1627,9 @@ function EvaluasiPage() {
         {/* Metrics grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
           {metrics.map((m, i) => (
-            <div key={i} className="bg-surface-container-lowest glass-card rounded-2xl border border-outline-variant p-5 shadow-md hover:shadow-lg transition-shadow">
+            <div key={i} className="bg-white card-surface rounded-2xl border border-gray-100 p-4 shadow-sm">
               <p className="text-xs text-gray-500 mb-1">{m.label}</p>
-              <p className="text-2xl font-extrabold text-emerald-600">{m.val}<span className="text-base font-semibold text-gray-400">{m.unit}</span></p>
+              <p className="text-2xl font-extrabold text-blue-600">{m.val}<span className="text-base font-semibold text-gray-400">{m.unit}</span></p>
             </div>
           ))}
         </div>
@@ -1394,12 +1659,11 @@ function EvaluasiPage() {
                 <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
                   <div className="shrink-0 mt-0.5">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${q.is_violation ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-500"}`}>
-                      {q.is_violation ? `${q.violations_count} pelang.` : "Info/Sapaan"}
+                      {q.is_violation ? `${q.violations_count} pelang.` : "Sapaan"}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-gray-700 truncate">{q.query}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">Relevance: {(q.avg_confidence * 100).toFixed(1)}%</p>
                   </div>
                 </div>
               ))}
@@ -1411,55 +1675,6 @@ function EvaluasiPage() {
   );
 }
 
-// ── Tentang ──────────────────────────────────────
-function Footer() {
-  return (
-    <footer className="bg-surface-container-lowest border-t border-outline-variant mt-10">
-      <div className="max-w-container-max mx-auto px-md py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="bg-gradient-to-br from-primary-fixed to-emerald-700 rounded-lg p-1.5 shadow-sm">
-                <Car size={16} className="text-white" />
-              </div>
-              <span className="font-bold text-info-heading ">TrafficAI</span>
-            </div>
-            <p className="font-normal text-sm text-on-surface-variant mb-4">
-              Sistem edukasi hukum berbasis AI yang membantu masyarakat memahami pelanggaran lalu lintas dan sanksinya berdasarkan UU No. 22 Tahun 2009.
-            </p>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-lg text-info-heading mb-4">Teknologi</h4>
-            <ul className="space-y-2 font-normal text-sm text-on-surface-variant">
-              <li className="flex items-center gap-2"><span className="text-info-heading"><Zap size={14} /></span> Groq API + Llama 3.3-70B</li>
-              <li className="flex items-center gap-2"><span className="text-info-heading"><Search size={14} /></span> RAG & ChromaDB</li>
-              <li className="flex items-center gap-2"><span className="text-info-heading"><BookOpen size={14} /></span> UU No. 22 Tahun 2009</li>
-              <li className="flex items-center gap-2"><span className="text-info-heading"><Shield size={14} /></span> React + Tailwind v4</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-lg text-info-heading mb-4">Disclaimer</h4>
-            <div className="bg-error-container text-on-error-container p-3 rounded-lg flex items-start gap-2">
-              <AlertTriangle size={16} className="shrink-0 mt-0.5" />
-              <p className="font-normal text-[12px] leading-relaxed">
-                Hasil analisis bersifat edukatif. Informasi ini tidak menggantikan keputusan resmi pihak berwenang (Kepolisian/Pengadilan).
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="border-t border-outline-variant mt-8 pt-6 flex flex-col md:flex-row items-center justify-between font-normal text-xs text-outline">
-          <p>&copy; {new Date().getFullYear()} TrafficAI. All rights reserved.</p>
-          <p>Didesain untuk Profesionalisme & Edukasi</p>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
-
-
 // ════════════════════════════════════════════════
 // MAIN APP
 // ════════════════════════════════════════════════
@@ -1467,121 +1682,218 @@ export default function App() {
   const [dark, toggleDark] = useDarkMode();
   const [page, setPage] = useState("home");
   const [initPrompt, setInitPrompt] = useState("");
-  const [history, setHistory, clearHistory] = usePersistentHistory();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Firebase auth state
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      setAuthLoading(false);
+    });
+    return () => unsub();
+  }, []);
+
+  // Firestore-based history (per user)
+  const [history, addHistory, clearHistory, historyLoading] = useFirestoreHistory(user);
+
+  const handleLogin = (firebaseUser) => {
+    setUser(firebaseUser);
+    setPage("home");
+  };
+
+  const handleLogout = async () => {
+    await logoutUser();
+    setUser(null);
+    setPage("home");
+  };
 
   const NAV = [
     { id: "home", label: "Home", icon: Home },
-    { id: "konsultasi", label: "Consult", icon: MessageSquare },
+    { id: "konsultasi", label: "Consult", icon: MessageSquare, authRequired: true },
     { id: "informasi", label: "Laws", icon: BookOpen },
-    { id: "riwayat", label: "History", icon: History },
+    { id: "riwayat", label: "History", icon: History, authRequired: true },
+    { id: "panduan", label: "Guide", icon: HelpCircle },
   ];
 
   const goTo = useCallback((p, prompt = "") => {
+    // Auth guard: redirect to login if required
+    const navItem = ["konsultasi", "riwayat"].includes(p);
+    if (navItem && !user) {
+      setPage("login");
+      setMobileOpen(false);
+      return;
+    }
     setPage(p);
     if (prompt) setInitPrompt(prompt);
     setMobileOpen(false);
-  }, []);
+  }, [user]);
 
   const goToChat = useCallback((h) => {
     setPage("konsultasi");
     setMobileOpen(false);
   }, []);
 
+  // Show loading screen while checking auth
+  if (authLoading) {
+    return (
+      <div className={`h-screen flex items-center justify-center bg-background page-bg ${dark ? "tm-dark" : ""}`}>
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-800 to-emerald-400 shadow-xl mb-4">
+            <Car size={32} className="text-white" />
+          </div>
+          <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm font-semibold text-on-surface-variant">Memuat TrafficAI...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ThemeCtx.Provider value={{ dark, toggle: toggleDark }}>
-      <style>{`
-        @keyframes typingBounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
-        @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes particle-rise-1 { 0%{transform:translateY(0) translateX(0);opacity:0} 10%{opacity:0.8} 90%{opacity:0.2} 100%{transform:translateY(-140px) translateX(35px);opacity:0} }
-        @keyframes particle-rise-2 { 0%{transform:translateY(0) translateX(0);opacity:0} 15%{opacity:0.6} 85%{opacity:0.25} 100%{transform:translateY(-110px) translateX(-30px);opacity:0} }
-        ${DARK_CSS}
-      `}</style>
+      <AuthCtx.Provider value={{ user, loading: authLoading }}>
+        <style>{`
+          @keyframes typingBounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+          @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+          @keyframes particle-rise-1 { 0%{transform:translateY(0) translateX(0);opacity:0} 10%{opacity:0.8} 90%{opacity:0.2} 100%{transform:translateY(-140px) translateX(35px);opacity:0} }
+          @keyframes particle-rise-2 { 0%{transform:translateY(0) translateX(0);opacity:0} 15%{opacity:0.6} 85%{opacity:0.25} 100%{transform:translateY(-110px) translateX(-30px);opacity:0} }
+          ${DARK_CSS}
+        `}</style>
 
-      <div className={`h-screen flex flex-col bg-background text-on-surface page-bg ${dark ? "tm-dark" : ""}`}>
-        {/* Ambient animated orbs */}
-        <div className="orb-1" aria-hidden="true" />
-        <div className="orb-2" aria-hidden="true" />
-        <div className="orb-3" aria-hidden="true" />
-        {/* Navbar */}
-        <nav className="bg-surface border-b border-outline-variant shrink-0 z-50 shadow-sm transition-colors">
-          <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <button onClick={() => goTo("home")} onDoubleClick={() => goTo("evaluasi")} className="flex items-center gap-2 group">
-              <div className="bg-gradient-to-br from-emerald-800 to-emerald-400 rounded-xl p-2 shadow-md group-hover:shadow-emerald-300/40 transition-shadow">
-                <Car size={15} className="text-white" />
-              </div>
-              <span className="font-extrabold text-info-heading text-lg tracking-tight">Traffic<span className="text-emerald-600">AI</span></span>
-            </button>
+        <div className={`h-screen flex flex-col bg-background text-on-surface page-bg ${dark ? "tm-dark" : ""}`}>
+          {/* Ambient animated orbs */}
+          <div className="orb-1" aria-hidden="true" />
+          <div className="orb-2" aria-hidden="true" />
+          <div className="orb-3" aria-hidden="true" />
+          {/* Navbar */}
+          <nav className="bg-surface border-b border-outline-variant shrink-0 z-50 shadow-sm transition-colors">
+            <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+              <button onClick={() => goTo("home")} onDoubleClick={() => goTo("evaluasi")} className="flex items-center gap-2 group">
+                <div className="bg-gradient-to-br from-emerald-800 to-emerald-400 rounded-xl p-2 shadow-md group-hover:shadow-emerald-300/40 transition-shadow">
+                  <Car size={15} className="text-white" />
+                </div>
+                <span className="font-extrabold text-info-heading text-lg tracking-tight">Traffic<span className="text-emerald-600">AI</span></span>
+              </button>
 
-            <div className="hidden sm:flex items-center gap-0.5">
-              {NAV.map(({ id, label, icon: Icon }) => (
-                <button key={id} onClick={() => goTo(id)}
-                  className={`relative flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${page === id
-                    ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/25"
-                    : "text-gray-500 hover:text-gray-800 hover:bg-gray-100"
-                    }`}>
-                  <Icon size={13} />
-                  {label}
-                  {id === "riwayat" && history.length > 0 && (
-                    <span className={`text-[10px] rounded-full w-4 h-4 flex items-center justify-center leading-none font-bold ${page === id ? "bg-white text-emerald-600" : "bg-emerald-600 text-white"}`}>
-                      {history.length > 9 ? "9+" : history.length}
-                    </span>
-                  )}
+              <div className="hidden sm:flex items-center gap-0.5">
+                {NAV.map(({ id, label, icon: Icon, authRequired }) => (
+                  <button key={id} onClick={() => goTo(id)}
+                    className={`relative flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${page === id
+                      ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/25"
+                      : "text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+                      }`}>
+                    <Icon size={13} />
+                    {label}
+                    {authRequired && !user && <Lock size={9} className="ml-0.5 opacity-60" />}
+                    {id === "riwayat" && history.length > 0 && user && (
+                      <span className={`text-[10px] rounded-full w-4 h-4 flex items-center justify-center leading-none font-bold ${page === id ? "bg-white text-emerald-600" : "bg-emerald-600 text-white"}`}>
+                        {history.length > 9 ? "9+" : history.length}
+                      </span>
+                    )}
+                  </button>
+                ))}
+                <div className="w-px h-5 bg-gray-200 mx-1" />
+                <button onClick={toggleDark}
+                  className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
+                  title={dark ? "Mode terang" : "Mode gelap"}>
+                  {dark ? <Sun size={15} /> : <Moon size={15} />}
                 </button>
-              ))}
-              <div className="w-px h-5 bg-gray-200 mx-1" />
-              <button onClick={toggleDark}
-                className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
-                title={dark ? "Mode terang" : "Mode gelap"}>
-                {dark ? <Sun size={15} /> : <Moon size={15} />}
+
+                {/* Auth button */}
+                {user ? (
+                  <div className="flex items-center gap-2 ml-1">
+                    <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-100">
+                      {user.photoURL ? (
+                        <img src={user.photoURL} alt="" className="w-6 h-6 rounded-full border border-emerald-200" />
+                      ) : (
+                        <div className="w-6 h-6 rounded-full bg-emerald-200 flex items-center justify-center">
+                          <User size={12} className="text-emerald-700" />
+                        </div>
+                      )}
+                      <span className="text-xs font-bold text-emerald-700 max-w-[80px] truncate hidden lg:block">
+                        {user.displayName || user.phoneNumber || "User"}
+                      </span>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="p-2 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                      title="Logout"
+                    >
+                      <LogOut size={15} />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setPage("login")}
+                    className="flex items-center gap-1.5 ml-1 px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-md shadow-emerald-500/25 hover:bg-emerald-700 transition-all active:scale-95"
+                  >
+                    <User size={13} /> Login
+                  </button>
+                )}
+              </div>
+
+              <button className="sm:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-xl transition-colors" onClick={() => setMobileOpen(o => !o)}>
+                {mobileOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
             </div>
 
-            <button className="sm:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-xl transition-colors" onClick={() => setMobileOpen(o => !o)}>
-              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-          </div>
-
-          {mobileOpen && (
-            <div className="sm:hidden bg-surface border-t border-outline-variant px-4 py-3 space-y-1 transition-colors">
-              {NAV.map(({ id, label, icon: Icon }) => (
-                <button key={id} onClick={() => goTo(id)}
-                  className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-all ${page === id
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "text-gray-600 hover:bg-gray-100"
-                    }`}>
-                  <Icon size={16} /> {label}
-                  {id === "riwayat" && history.length > 0 && (
-                    <span className={`ml-auto text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold ${page === id ? "bg-white text-emerald-600" : "bg-emerald-600 text-white"}`}>
-                      {history.length > 9 ? "9+" : history.length}
-                    </span>
+            {mobileOpen && (
+              <div className="sm:hidden bg-surface border-t border-outline-variant px-4 py-3 space-y-1 transition-colors">
+                {NAV.map(({ id, label, icon: Icon, authRequired }) => (
+                  <button key={id} onClick={() => goTo(id)}
+                    className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-all ${page === id
+                      ? "bg-emerald-600 text-white shadow-sm"
+                      : "text-gray-600 hover:bg-gray-100"
+                      }`}>
+                    <Icon size={16} /> {label}
+                    {authRequired && !user && <Lock size={11} className="ml-0.5 opacity-60" />}
+                    {id === "riwayat" && history.length > 0 && user && (
+                      <span className={`ml-auto text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold ${page === id ? "bg-white text-emerald-600" : "bg-emerald-600 text-white"}`}>
+                        {history.length > 9 ? "9+" : history.length}
+                      </span>
+                    )}
+                  </button>
+                ))}
+                <div className="border-t border-gray-100 pt-2 space-y-1">
+                  <button onClick={toggleDark}
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all">
+                    {dark ? <Sun size={16} /> : <Moon size={16} />}
+                    {dark ? "Mode Terang" : "Mode Gelap"}
+                  </button>
+                  {user ? (
+                    <button onClick={handleLogout}
+                      className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-all">
+                      <LogOut size={16} /> Logout ({user.displayName || user.phoneNumber || "User"})
+                    </button>
+                  ) : (
+                    <button onClick={() => { setPage("login"); setMobileOpen(false); }}
+                      className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold text-emerald-600 hover:bg-emerald-50 transition-all">
+                      <User size={16} /> Login / Register
+                    </button>
                   )}
-                </button>
-              ))}
-              <div className="border-t border-gray-100 pt-2">
-                <button onClick={toggleDark}
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all">
-                  {dark ? <Sun size={16} /> : <Moon size={16} />}
-                  {dark ? "Mode Terang" : "Mode Gelap"}
-                </button>
+                </div>
               </div>
-            </div>
-          )}
-        </nav>
-
-        {/* Page content */}
-        <div className="flex-1 overflow-hidden">
-          <AnimatePresence mode="wait">
-            {page === "home" && <HomePage key="home" goTo={goTo} />}
-            {page === "konsultasi" && (
-              <KonsultasiPage key={initPrompt || "chat"} initMsg={initPrompt} setHistory={setHistory} />
             )}
-            {page === "informasi" && <InformasiPage key="info" />}
-            {page === "riwayat" && <RiwayatPage key="riwayat" history={history} goToChat={goToChat} onClear={clearHistory} />}
-            {page === "evaluasi" && <EvaluasiPage key="eval" />}
-          </AnimatePresence>
+          </nav>
+
+          {/* Page content */}
+          <div className="flex-1 overflow-hidden w-full relative">
+            <AnimatePresence mode="wait">
+              {page === "login" && <AuthPage key="auth" onLogin={handleLogin} />}
+              {page === "home" && <HomePage key="home" goTo={goTo} />}
+              {page === "konsultasi" && user && (
+                <KonsultasiPage key={initPrompt || "chat"} initMsg={initPrompt} addHistory={addHistory} />
+              )}
+              {page === "informasi" && <InformasiPage key="info" />}
+              {page === "riwayat" && user && <RiwayatPage key="riwayat" history={history} goToChat={goToChat} onClear={clearHistory} />}
+              {page === "evaluasi" && <EvaluasiPage key="eval" />}
+              {page === "panduan" && <GuidePage key="guide" />}
+            </AnimatePresence>
+          </div>
         </div>
-      </div>
+      </AuthCtx.Provider>
     </ThemeCtx.Provider>
   );
 }

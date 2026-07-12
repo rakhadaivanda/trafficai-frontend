@@ -1,16 +1,6 @@
 @import "tailwindcss";
 
 @theme {
-  --spacing-base: 8px;
-  --spacing-xl: 80px;
-  --spacing-sm: 12px;
-  --spacing-container-max: 1280px;
-  --spacing-xs: 4px;
-  --spacing-md: 24px;
-  --spacing-margin-mobile: 16px;
-  --spacing-lg: 48px;
-  --spacing-gutter: 24px;
-
   --font-label-md: "Inter", sans-serif;
   --font-headline-lg-mobile: "Plus Jakarta Sans", sans-serif;
   --font-body-md: "Inter", sans-serif;
