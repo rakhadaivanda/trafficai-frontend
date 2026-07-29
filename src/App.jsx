@@ -1190,7 +1190,7 @@ function KonsultasiPage({ initMsg, initMessages, addHistory }) {
         method: "POST",
         headers: hdrs,
         body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(120000),
+        signal: AbortSignal.timeout(180000), // 3 menit
       });
 
       let data;
@@ -1235,7 +1235,7 @@ function KonsultasiPage({ initMsg, initMessages, addHistory }) {
     } catch (err) {
       setOnline(false);
       const isTO = err.name === "TimeoutError";
-      let errMsg = isTO ? "Waktu tunggu habis (60 detik). Coba lagi sebentar." : err.message;
+      let errMsg = isTO ? "Waktu tunggu habis (3 menit). Karena server sedang sibuk, harap coba lagi." : err.message;
       if (errMsg === "Failed to fetch") errMsg = "Tidak dapat terhubung ke backend. Pastikan server menyala.";
 
       setMessages([...withUser, {
